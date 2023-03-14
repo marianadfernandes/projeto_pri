@@ -33,8 +33,7 @@ public class Document {
     }
 
     public void splitData(String text) {
-        String[] splitText= text.split("\\W+");
-        /* apanha os ' */
+        String[] splitText= text.split("(?!')\\W+");
         System.out.println(Arrays.toString(splitText));
     }
 }
