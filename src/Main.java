@@ -1,3 +1,8 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import static java.lang.Integer.parseInt;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -10,8 +15,11 @@ public class Main {
         String [] splitText = doc.splitData(text);
         String [] splitText2 = doc2.splitData(text2);
 
-        doc.addEntry(splitText);
-        doc2.addEntry(splitText2);
+        ArrayList<String> terms = doc.processText(splitText);
+        ArrayList<String> terms2 = doc2.processText(splitText2);
+
+        doc.addEntry(terms);
+        doc2.addEntry(terms2);
 
         doc.invertEntry();
         doc2.invertEntry();
@@ -19,5 +27,16 @@ public class Main {
         doc.printDirectIndex();
 
         doc.printInvertedIndex();
+
+        doc.dumpData();
+
+        Scanner myObj = new Scanner(System.in);
+        System.out.println("Introduza o doc id a procurar:");
+        Integer docid = parseInt(myObj.nextLine());
+        doc.searchDocID(docid);
+
+        System.out.println("Introduza o termo a procurar:");
+        String term = myObj.nextLine().toLowerCase();
+        doc.searchTerm(term);
     }
 }
