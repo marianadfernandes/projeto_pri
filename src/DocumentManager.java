@@ -10,9 +10,9 @@ public class DocumentManager {
     SortedMap<String, ArrayList<Object>> invertedIndex = new TreeMap<>();
 
 
-    public DocumentManager() {
+    /*public DocumentManager() {
         setId(++idCounter);
-    }
+    }*/
 
 
     public int getId() {
@@ -51,8 +51,8 @@ public class DocumentManager {
         return terms;
     }
 
-    public void addEntry(ArrayList<String> splitText) {
-        directIndex.put(id ,splitText);
+    public void addEntry(Integer docid, ArrayList<String> splitText) {
+        directIndex.put(docid ,splitText);
     }
 
     /*
@@ -95,7 +95,7 @@ public class DocumentManager {
 
     public void searchDocID(Integer docid) {
         if (directIndex.containsKey(docid)) {
-            System.out.println(directIndex.get(docid));
+            System.out.println("Termos do documento " + docid + ": " + directIndex.get(docid));
         } else {
             System.out.println("Não contém a chave pretendida");
         }

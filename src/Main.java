@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static java.lang.Integer.parseInt;
 
@@ -18,11 +20,22 @@ public class Main {
         listText = FilesRetriever.listTextFromFiles(files);
         System.out.println(listText);
 
-        DocumentManager doc = new DocumentManager();
-        DocumentManager doc2 = new DocumentManager();
+        SortedMap<Integer,String> fileIndex = new TreeMap<>();
+        fileIndex = FilesRetriever.filesMap(files);
+        for (Integer key : fileIndex.keySet())
+            System.out.println(key + " - "+ fileIndex.get(key));
 
-        String text = doc.readFile("input/teste.txt");
-        String text2 = doc2.readFile("input/teste2.txt");
+        DocumentManager doc = new DocumentManager();
+        // DocumentManager doc2 = new DocumentManager();
+
+        for (Integer key : fileIndex.keySet()) {
+            String text = doc.readFile(fileIndex.get(key));
+            String [] splitText = doc.splitData(text);
+            ArrayList<String> terms = doc.processText(splitText);
+            doc.addEntry(key, terms);
+            doc.invertEntry();
+        }
+        /*String text2 = doc2.readFile("input/teste2.txt");
 
         String [] splitText = doc.splitData(text);
         String [] splitText2 = doc2.splitData(text2);
@@ -34,7 +47,7 @@ public class Main {
         doc2.addEntry(terms2);
 
         doc.invertEntry();
-        doc2.invertEntry();
+        doc2.invertEntry(); */
 
         doc.printDirectIndex();
 
@@ -46,6 +59,7 @@ public class Main {
         System.out.println("Introduza o doc id a procurar:");
         Integer docid = parseInt(myObj.nextLine());
         doc.searchDocID(docid);
+        FilesRetriever.searchFileName(docid);
 
         System.out.println("Introduza o termo a procurar:");
         String term = myObj.nextLine().toLowerCase();
