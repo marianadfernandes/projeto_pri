@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Document {
+public class DocumentManager {
 
     int id;
     static int idCounter = 0;
@@ -10,7 +10,7 @@ public class Document {
     SortedMap<String, ArrayList<Object>> invertedIndex = new TreeMap<>();
 
 
-    public Document() {
+    public DocumentManager() {
         setId(++idCounter);
     }
 

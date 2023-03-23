@@ -4,13 +4,25 @@ import java.util.Scanner;
 import static java.lang.Integer.parseInt;
 
 public class Main {
+
+
+
     public static void main(String[] args) {
 
-        Document doc = new Document();
-        Document doc2 = new Document();
+        String path = "./input/";
+        ArrayList<String> files = new ArrayList<>();
+        ArrayList<String> listText = new ArrayList<>();
 
-        String text = doc.readFile("teste.txt");
-        String text2 = doc2.readFile("teste2.txt");
+        files = FilesRetriever.listFilesForFolder(path);
+        System.out.println(files);
+        listText = FilesRetriever.listTextFromFiles(files);
+        System.out.println(listText);
+
+        DocumentManager doc = new DocumentManager();
+        DocumentManager doc2 = new DocumentManager();
+
+        String text = doc.readFile("input/teste.txt");
+        String text2 = doc2.readFile("input/teste2.txt");
 
         String [] splitText = doc.splitData(text);
         String [] splitText2 = doc2.splitData(text2);
