@@ -40,12 +40,12 @@ public class Main {
         filesMap = doc.filesIdsAndText(filesIds, listText);
 
 
-        // criação do dicionário direto de doc id - termos
+        // criação do índice direto de doc id - termos
         HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
         System.out.println("\nDicionário Direto de DocID - Termos (processados):");
         directIdx = doc.createDirectIndex(filesMap);
 
-        // criação do dicionário invertido
+        // criação do índice invertido
         SortedMap<String, ArrayList<Integer>> invertedIdx = new TreeMap<>();
         System.out.println("\nDicionário Invertido:");
         invertedIdx = doc.createInvertedIndex(directIdx);
