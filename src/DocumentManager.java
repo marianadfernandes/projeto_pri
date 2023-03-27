@@ -3,27 +3,8 @@ import java.util.*;
 
 public class DocumentManager {
 
-    int id;
-    static int idCounter = 0;
-    String text;
-    static HashMap<Integer, ArrayList<String>> directIndex = new HashMap<Integer, ArrayList<String>>();
-    SortedMap<String, ArrayList<Object>> invertedIndex = new TreeMap<>();
-
-
-    /*public DocumentManager() {
-        setId(++idCounter);
-    }*/
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String readFile(String filepath) {
+        String text = "";
         try {
             File myObj = new File(filepath);
             Scanner myReader = new Scanner(myObj);
@@ -36,6 +17,27 @@ public class DocumentManager {
             e.printStackTrace();
         }
         return text;
+    }
+
+    public HashMap<Integer, String> attributeFileId(ArrayList<String> files ){
+        HashMap<Integer, String> filesIds = new HashMap<>();
+        for (int i=0; i<files.size(); i++){
+            filesIds.put(i+1, files.get(i));
+        }
+        for (Integer key : filesIds.keySet())
+            System.out.println(key + " - "+ filesIds.get(key));
+        return filesIds;
+    }
+
+    public HashMap<Map.Entry<Integer, String>, String> filesIdsAndText(HashMap<Integer,String> filesIds, ArrayList<String> listText){
+        HashMap<Map.Entry<Integer, String>, String> filesMap = new HashMap<>();
+        for (Map.Entry<Integer,String> entry : filesIds.entrySet()){
+            filesMap.put(entry,listText.get(entry.getKey()-1));
+        }
+        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.entrySet()) {
+            System.out.println(entry.getKey().getKey() + " - " + entry.getKey().getValue() + " - " + entry.getValue());
+        }
+        return filesMap;
     }
 
     public String[] splitData(String text) {
@@ -51,57 +53,58 @@ public class DocumentManager {
         return terms;
     }
 
-    public void addEntry(Integer docid, ArrayList<String> splitText) {
-        directIndex.put(docid ,splitText);
+    public HashMap<Integer, ArrayList<String>> createDirectIndex(HashMap<Map.Entry<Integer, String>, String> filesMap) {
+        HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
+
+        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.entrySet()) {
+            String text = entry.getValue();
+            String [] splitText = splitData(text);
+            ArrayList<String> terms = processText(splitText);
+            directIdx.put(entry.getKey().getKey(), terms);
+        }
+
+        for (Map.Entry<Integer, ArrayList<String>> entry : directIdx.entrySet()) {
+            System.out.println(entry.getKey() + " - " + entry.getValue());
+        }
+
+        return directIdx;
     }
 
-    /*
-    public void invertEntry() {
-        ArrayList<Integer> postingList = new ArrayList<>();
-        for (Integer key : directIndex.keySet()) {
-            for (String value : directIndex.get(key)) {
-                if (directIndex.get(key). && !postingList.contains(key)) {
-                    postingList.add(key);
-                }
-                invertedIndex.put(value, postingList);
-            }
-        }
-    }*/
-
-    public void invertEntry() {
-        for (Integer key : directIndex.keySet()) {
-            for (String value : directIndex.get(key)) {
-                ArrayList<Object> postingList = invertedIndex.getOrDefault(value, new ArrayList<>());
+    public SortedMap<String, ArrayList<Integer>> createInvertedIndex(HashMap<Integer, ArrayList<String>> directIdx) {
+        SortedMap<String, ArrayList<Integer>> invertedIndex = new TreeMap<>();
+        for (Integer key : directIdx.keySet()) {
+            for (String value : directIdx.get(key)) {
+                ArrayList<Integer> postingList = invertedIndex.getOrDefault(value, new ArrayList<>());
                 if (!postingList.contains(key)) {
                     postingList.add(key);
                 }
                 invertedIndex.put(value, postingList);
             }
         }
+        printInvertedIndex(invertedIndex);
+        return invertedIndex;
     }
 
-    public void printDirectIndex(){
-        for (int key : directIndex.keySet()) {
-            System.out.println(key + " - " + directIndex.get(key));
-        }
-    }
-
-    public void printInvertedIndex(){
+    public void printInvertedIndex(SortedMap<String, ArrayList<Integer>> invertedIndex){
         System.out.printf("%-10s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
         for (String key : invertedIndex.keySet()) {
             System.out.printf("%-10s | %-14s | %-30s %n", key, invertedIndex.get(key).size(), invertedIndex.get(key));
         }
     }
 
-    public void searchDocID(Integer docid) {
-        if (directIndex.containsKey(docid)) {
-            System.out.println("Termos do documento " + docid + ": " + directIndex.get(docid));
-        } else {
-            System.out.println("Não contém a chave pretendida");
+    public boolean searchDocID(HashMap<Map.Entry<Integer, String>, String> filesMap, Integer docid, HashMap<Integer, ArrayList<String>> directIdx) {
+        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.entrySet()) {
+            if (entry.getKey().getKey().equals(docid)) {
+                System.out.println("Caminho para o ficheiro: " + entry.getKey().getValue());
+                System.out.println("Termos do documento " + docid + ": " + directIdx.get(docid));
+                return true;
+            }
         }
+        System.out.println("Não contém a chave pretendida");
+        return false;
     }
 
-    public void searchTerm(String term) {
+    public void searchTerm(SortedMap<String, ArrayList<Integer>> invertedIndex, String term) {
         if (invertedIndex.containsKey(term)) {
             System.out.println(term + " - Doc Frequency: " + invertedIndex.get(term).size() + " - Posting List: " + invertedIndex.get(term));
         } else {
@@ -109,18 +112,22 @@ public class DocumentManager {
         }
     }
 
-    public void dumpData() {
+    public void dumpData(SortedMap<String, ArrayList<Integer>> invertedIndex, HashMap<Integer, String> filesIds) {
         try {
             FileWriter myWriter = new FileWriter("invertedIndex.txt");
             PrintWriter print_line = new PrintWriter(myWriter);
-            print_line.printf("%-10s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
+            print_line.printf("%-10s | %-50s %n", "DOC. ID", "DOC. PATH");
+            for (Map.Entry<Integer, String> entry : filesIds.entrySet()) {
+                print_line.printf("%-10s | %-50s %n", entry.getKey(), entry.getValue());
+            }
+            print_line.printf("%n%-15s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
             for (String key : invertedIndex.keySet()) {
-                print_line.printf("%-10s | %-14s | %-30s %n", key, invertedIndex.get(key).size(), invertedIndex.get(key));
+                print_line.printf("%-15s | %-14s | %-30s %n", key, invertedIndex.get(key).size(), invertedIndex.get(key));
             }
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            System.out.println("\nEscrita no ficheiro concluída.");
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.out.println("Erro na escrita.");
             e.printStackTrace();
         }
     }

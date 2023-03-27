@@ -1,68 +1,96 @@
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 
 public class Main {
 
-
-
     public static void main(String[] args) {
 
-        String path = "./input/";
+        // objeto scanner para ler da consola
+        Scanner read = new Scanner(System.in);
+
+
+        // caminho para a pasta a percorrer e a guardar informação
+        System.out.println("\nIntroduza o caminho da pasta a analizar:");
+        String path = read.nextLine();
+
+
+        // obtenção dos ficheiros na pasta escolhida para percorrer
         ArrayList<String> files = new ArrayList<>();
-        ArrayList<String> listText = new ArrayList<>();
-
         files = FilesRetriever.listFilesForFolder(path);
-        System.out.println(files);
+        System.out.println("\nOs ficheiros .txt contidos na pasta com o caminho " + path + " são: " + files);
+
+        // obtenção do texto contido em cada ficheiro txt encontrado anteriormente
+        ArrayList<String> listText = new ArrayList<>();
+        System.out.println("\nTexto contido nos ficheiros:");
         listText = FilesRetriever.listTextFromFiles(files);
-        System.out.println(listText);
 
-        SortedMap<Integer,String> fileIndex = new TreeMap<>();
-        fileIndex = FilesRetriever.filesMap(files);
-        for (Integer key : fileIndex.keySet())
-            System.out.println(key + " - "+ fileIndex.get(key));
 
+        // criação de um objeto DocumentManager, para implementar os seus métodos
         DocumentManager doc = new DocumentManager();
-        // DocumentManager doc2 = new DocumentManager();
 
-        for (Integer key : fileIndex.keySet()) {
-            String text = doc.readFile(fileIndex.get(key));
-            String [] splitText = doc.splitData(text);
-            ArrayList<String> terms = doc.processText(splitText);
-            doc.addEntry(key, terms);
-            doc.invertEntry();
+        // atribuição de um ID a cada ficheiro .txt encontrado na pasta inicial
+        HashMap<Integer, String> filesIds = new HashMap<>();
+        System.out.println("\nAtribuição de ID a cada ficheiro da pasta:");
+        filesIds = doc.attributeFileId(files);
+
+        // criação de um mapa que inclui DocID - DocName - Texto corrido
+        HashMap<Map.Entry<Integer, String>, String> filesMap = new HashMap<>();
+        System.out.println("\nMapa DocID - DocPath - Texto corrido");
+        filesMap = doc.filesIdsAndText(filesIds, listText);
+
+
+        // criação do dicionário direto de doc id - termos
+        HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
+        System.out.println("\nDicionário Direto de DocID - Termos (processados):");
+        directIdx = doc.createDirectIndex(filesMap);
+
+        // criação do dicionário invertido
+        SortedMap<String, ArrayList<Integer>> invertedIdx = new TreeMap<>();
+        System.out.println("\nDicionário Invertido:");
+        invertedIdx = doc.createInvertedIndex(directIdx);
+
+
+        Integer opt = 1;
+        while (opt != 0) {
+            System.out.println("\n\n--------- MENU ---------" +
+                    "\n1 - Procura por DOC. ID" +
+                    "\n2 - Procura por termo" +
+                    "\n3 - Escrita no ficheiro" +
+                    "\n0 - Terminar");
+            System.out.println("\nIntroduza uma opção: ");
+            opt = read.nextInt();
+
+            switch (opt) {
+                case 1:
+                    while(true) {
+                        // pesquisa por Doc ID
+                        System.out.println("\nIntroduza o doc id a procurar (0 para voltar):");
+                        Integer docid = read.nextInt();
+                        if (docid == 0) {
+                            break;
+                        }
+                        doc.searchDocID(filesMap, docid, directIdx);
+                    }
+                    break;
+                case 2:
+                    read.nextLine();
+                    while(true) {
+                        // pesquisa por termo
+                        System.out.println("\nIntroduza o termo a procurar (0 para voltar):");
+                        String term = read.nextLine().toLowerCase();
+                        if (term.equals("0")) {
+                            break;
+                        }
+                        doc.searchTerm(invertedIdx, term);
+                    }
+                    break;
+                case 3:
+                    // escrita do dicionário invertido global num ficheiro de texto "invertedIndex.txt"
+                    doc.dumpData(invertedIdx, filesIds);
+                    break;
+                default: break;
+            }
         }
-        /*String text2 = doc2.readFile("input/teste2.txt");
-
-        String [] splitText = doc.splitData(text);
-        String [] splitText2 = doc2.splitData(text2);
-
-        ArrayList<String> terms = doc.processText(splitText);
-        ArrayList<String> terms2 = doc2.processText(splitText2);
-
-        doc.addEntry(terms);
-        doc2.addEntry(terms2);
-
-        doc.invertEntry();
-        doc2.invertEntry(); */
-
-        doc.printDirectIndex();
-
-        doc.printInvertedIndex();
-
-        doc.dumpData();
-
-        Scanner myObj = new Scanner(System.in);
-        System.out.println("Introduza o doc id a procurar:");
-        Integer docid = parseInt(myObj.nextLine());
-        doc.searchDocID(docid);
-        FilesRetriever.searchFileName(docid);
-
-        System.out.println("Introduza o termo a procurar:");
-        String term = myObj.nextLine().toLowerCase();
-        doc.searchTerm(term);
     }
 }
