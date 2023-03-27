@@ -86,7 +86,7 @@ public class Main {
                     }
                     break;
                 case 3:
-                    // escrita do dicionário invertido global num ficheiro de texto "invertedIndex.txt"
+                    // escrita do índice invertido global num ficheiro de texto "invertedIndex.txt"
                     doc.dumpData(invertedIdx, filesIds);
                     break;
                 default: break;
