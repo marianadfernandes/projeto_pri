@@ -1,3 +1,5 @@
+package indexer;
+
 import javax.swing.*;
 import java.awt.*;
 

@@ -1,3 +1,5 @@
+package indexer;
+
 import java.io.*;
 import java.util.*;
 
@@ -19,22 +21,22 @@ public class DocumentManager {
         return text;
     }
 
-    public HashMap<Integer, String> attributeFileId(ArrayList<String> files ){
-        HashMap<Integer, String> filesIds = new HashMap<>();
-        for (int i=0; i<files.size(); i++){
-            filesIds.put(i+1, files.get(i));
+    public IdsMap attributeFileId(ArrayList<String> files ){
+        IdsMap filesIds = new IdsMap();
+        for (int i=0; i<files.size(); i++) {
+            filesIds.addEntry(i + 1, files.get(i));
         }
-        for (Integer key : filesIds.keySet())
-            System.out.println(key + " - "+ filesIds.get(key));
+        for (Integer key : filesIds.getFilesIds().keySet())
+            System.out.println(key + " - "+ filesIds.getFilesIds().get(key));
         return filesIds;
     }
 
-    public HashMap<Map.Entry<Integer, String>, String> filesIdsAndText(HashMap<Integer,String> filesIds, ArrayList<String> listText){
-        HashMap<Map.Entry<Integer, String>, String> filesMap = new HashMap<>();
-        for (Map.Entry<Integer,String> entry : filesIds.entrySet()){
-            filesMap.put(entry,listText.get(entry.getKey()-1));
+    public DocMap filesIdsAndText(IdsMap filesIds, ArrayList<String> listText){
+        DocMap filesMap = new DocMap();
+        for (Map.Entry<Integer,String> entry : filesIds.getFilesIds().entrySet()){
+            filesMap.addEntry(entry, listText.get(entry.getKey()-1));
         }
-        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.entrySet()) {
+        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             System.out.println(entry.getKey().getKey() + " - " + entry.getKey().getValue() + " - " + entry.getValue());
         }
         return filesMap;
@@ -53,10 +55,10 @@ public class DocumentManager {
         return terms;
     }
 
-    public HashMap<Integer, ArrayList<String>> createDirectIndex(HashMap<Map.Entry<Integer, String>, String> filesMap) {
+    public HashMap<Integer, ArrayList<String>> createDirectIndex(DocMap filesMap) {
         HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
 
-        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.entrySet()) {
+        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             String text = entry.getValue();
             String [] splitText = splitData(text);
             ArrayList<String> terms = processText(splitText);
@@ -70,30 +72,30 @@ public class DocumentManager {
         return directIdx;
     }
 
-    public SortedMap<String, ArrayList<Integer>> createInvertedIndex(HashMap<Integer, ArrayList<String>> directIdx) {
-        SortedMap<String, ArrayList<Integer>> invertedIndex = new TreeMap<>();
+    public InvertedIndex createInvertedIndex(HashMap<Integer, ArrayList<String>> directIdx) {
+        InvertedIndex invertedIndex = new InvertedIndex();
         for (Integer key : directIdx.keySet()) {
             for (String value : directIdx.get(key)) {
-                ArrayList<Integer> postingList = invertedIndex.getOrDefault(value, new ArrayList<>());
+                ArrayList<Integer> postingList = invertedIndex.getInvertedIndex().getOrDefault(value, new ArrayList<>());
                 if (!postingList.contains(key)) {
                     postingList.add(key);
                 }
-                invertedIndex.put(value, postingList);
+                invertedIndex.addEntry(value, postingList);
             }
         }
         printInvertedIndex(invertedIndex);
         return invertedIndex;
     }
 
-    public void printInvertedIndex(SortedMap<String, ArrayList<Integer>> invertedIndex){
+    public void printInvertedIndex(InvertedIndex invertedIndex){
         System.out.printf("%-10s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
-        for (String key : invertedIndex.keySet()) {
-            System.out.printf("%-10s | %-14s | %-30s %n", key, invertedIndex.get(key).size(), invertedIndex.get(key));
+        for (String key : invertedIndex.getInvertedIndex().keySet()) {
+            System.out.printf("%-10s | %-14s | %-30s %n", key, invertedIndex.getInvertedIndex().get(key).size(), invertedIndex.getInvertedIndex().get(key));
         }
     }
 
-    public boolean searchDocID(HashMap<Map.Entry<Integer, String>, String> filesMap, Integer docid, HashMap<Integer, ArrayList<String>> directIdx) {
-        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.entrySet()) {
+    public boolean searchDocID(DocMap filesMap, Integer docid, HashMap<Integer, ArrayList<String>> directIdx) {
+        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             if (entry.getKey().getKey().equals(docid)) {
                 System.out.println("Caminho para o ficheiro: " + entry.getKey().getValue());
                 System.out.println("Termos do documento " + docid + ": " + directIdx.get(docid));
@@ -104,25 +106,25 @@ public class DocumentManager {
         return false;
     }
 
-    public void searchTerm(SortedMap<String, ArrayList<Integer>> invertedIndex, String term) {
-        if (invertedIndex.containsKey(term)) {
-            System.out.println(term + " - Doc Frequency: " + invertedIndex.get(term).size() + " - Posting List: " + invertedIndex.get(term));
+    public void searchTerm(InvertedIndex invertedIndex, String term) {
+        if (invertedIndex.getInvertedIndex().containsKey(term)) {
+            System.out.println(term + " - Doc Frequency: " + invertedIndex.getInvertedIndex().get(term).size() + " - Posting List: " + invertedIndex.getInvertedIndex().get(term));
         } else {
             System.out.println("Não contém a chave pretendida");
         }
     }
 
-    public void dumpData(SortedMap<String, ArrayList<Integer>> invertedIndex, HashMap<Integer, String> filesIds) {
+    public void dumpData(InvertedIndex invertedIndex, IdsMap filesIds) {
         try {
             FileWriter myWriter = new FileWriter("invertedIndex.txt");
             PrintWriter print_line = new PrintWriter(myWriter);
             print_line.printf("%-10s | %-50s %n", "DOC. ID", "DOC. PATH");
-            for (Map.Entry<Integer, String> entry : filesIds.entrySet()) {
+            for (Map.Entry<Integer, String> entry : filesIds.getFilesIds().entrySet()) {
                 print_line.printf("%-10s | %-50s %n", entry.getKey(), entry.getValue());
             }
             print_line.printf("%n%-15s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
-            for (String key : invertedIndex.keySet()) {
-                print_line.printf("%-15s | %-14s | %-30s %n", key, invertedIndex.get(key).size(), invertedIndex.get(key));
+            for (String key : invertedIndex.getInvertedIndex().keySet()) {
+                print_line.printf("%-15s | %-14s | %-30s %n", key, invertedIndex.getInvertedIndex().get(key).size(), invertedIndex.getInvertedIndex().get(key));
             }
             myWriter.close();
             System.out.println("\nEscrita no ficheiro concluída.");
@@ -131,5 +133,17 @@ public class DocumentManager {
             e.printStackTrace();
         }
     }
-}
 
+    public void saveIndexToFile (InvertedIndex invertedIndex) {
+        try {
+            FileOutputStream fos = new FileOutputStream("invertedIndex_Serialized.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(invertedIndex);
+            oos.close();
+            fos.close();
+            System.out.println("\nInverted Index (Serialized) guardado no ficheiro.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

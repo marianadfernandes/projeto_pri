@@ -1,6 +1,6 @@
 DOC. ID    | DOC. PATH                                          
-1          | input/teste.txt                                    
-2          | input/teste2.txt                                   
+1          | C:\Users\ASUS\Documents\Mestrado\1º Ano\2º Semestre\PRI - Processamento e Recuperação de Informação\projeto_pri\input/teste.txt 
+2          | C:\Users\ASUS\Documents\Mestrado\1º Ano\2º Semestre\PRI - Processamento e Recuperação de Informação\projeto_pri\input/teste2.txt 
 
 TERM            | DOC. FREQUENCY | POSTING LIST                   
 2000            | 1              | [2]                            
