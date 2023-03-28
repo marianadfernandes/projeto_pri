@@ -49,52 +49,54 @@ public class Main {
         invertedIdx = doc.createInvertedIndex(directIdx);
 
 
-        Integer opt = 1;
-        while (opt != 0) {
-            System.out.println("\n\n--------- MENU ---------" +
-                    "\n1 - Procura por DOC. ID" +
-                    "\n2 - Procura por termo" +
-                    "\n3 - Escrita no ficheiro" +
-                    "\n0 - Terminar");
-            System.out.println("\nIntroduza uma opção: ");
+        GUInterface.userInterface();
 
-            while (!read.hasNextInt()) {
-                System.out.println("\nIntroduza uma opção válida: ");
-                read.next();
-            }
-
-            opt = read.nextInt();
-
-            switch (opt) {
-                case 1:
-                    while(true) {
-                        // pesquisa por Doc ID
-                        System.out.println("\nIntroduza o doc id a procurar (0 para voltar):");
-                        Integer docid = read.nextInt();
-                        if (docid == 0) {
-                            break;
-                        }
-                        doc.searchDocID(filesMap, docid, directIdx);
-                    }
-                    break;
-                case 2:
-                    read.nextLine();
-                    while(true) {
-                        // pesquisa por termo
-                        System.out.println("\nIntroduza o termo a procurar (0 para voltar):");
-                        String term = read.nextLine().toLowerCase();
-                        if (term.equals("0")) {
-                            break;
-                        }
-                        doc.searchTerm(invertedIdx, term);
-                    }
-                    break;
-                case 3:
-                    // escrita do índice invertido global num ficheiro de texto "invertedIndex.txt"
-                    doc.dumpData(invertedIdx, filesIds);
-                    break;
-                default: break;
-            }
-        }
+//        Integer opt = 1;
+//        while (opt != 0) {
+//            System.out.println("\n\n--------- MENU ---------" +
+//                    "\n1 - Procura por DOC. ID" +
+//                    "\n2 - Procura por termo" +
+//                    "\n3 - Escrita no ficheiro" +
+//                    "\n0 - Terminar");
+//            System.out.println("\nIntroduza uma opção: ");
+//
+//            while (!read.hasNextInt()) {
+//                System.out.println("\nIntroduza uma opção válida: ");
+//                read.next();
+//            }
+//
+//            opt = read.nextInt();
+//
+//            switch (opt) {
+//                case 1:
+//                    while(true) {
+//                        // pesquisa por Doc ID
+//                        System.out.println("\nIntroduza o doc id a procurar (0 para voltar):");
+//                        Integer docid = read.nextInt();
+//                        if (docid == 0) {
+//                            break;
+//                        }
+//                        doc.searchDocID(filesMap, docid, directIdx);
+//                    }
+//                    break;
+//                case 2:
+//                    read.nextLine();
+//                    while(true) {
+//                        // pesquisa por termo
+//                        System.out.println("\nIntroduza o termo a procurar (0 para voltar):");
+//                        String term = read.nextLine().toLowerCase();
+//                        if (term.equals("0")) {
+//                            break;
+//                        }
+//                        doc.searchTerm(invertedIdx, term);
+//                    }
+//                    break;
+//                case 3:
+//                    // escrita do índice invertido global num ficheiro de texto "invertedIndex.txt"
+//                    doc.dumpData(invertedIdx, filesIds);
+//                    break;
+//                default: break;
+//            }
+//        }
     }
 }
