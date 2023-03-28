@@ -16,7 +16,7 @@ public class Main {
         // obtenção dos ficheiros na pasta escolhida para percorrer
         ArrayList<String> files = new ArrayList<>();
         files = FilesRetriever.listFilesForFolder(path);
-        System.out.println("\nOs ficheiros .txt contidos na pasta com o caminho " + path + " são: " + files);
+        System.out.println("\nOs ficheiros .txt contidos na pasta com o caminho " + path + " são: \n" + files);
 
         // obtenção do texto contido em cada ficheiro txt encontrado anteriormente
         ArrayList<String> listText = new ArrayList<>();
@@ -57,6 +57,12 @@ public class Main {
                     "\n3 - Escrita no ficheiro" +
                     "\n0 - Terminar");
             System.out.println("\nIntroduza uma opção: ");
+
+            while (!read.hasNextInt()) {
+                System.out.println("\nIntroduza uma opção válida: ");
+                read.next();
+            }
+
             opt = read.nextInt();
 
             switch (opt) {
