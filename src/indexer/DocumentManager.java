@@ -1,25 +1,27 @@
 package indexer;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class DocumentManager {
 
     public String readFile(String filepath) {
-        String text = "";
+        StringBuilder text = new StringBuilder();
         try {
             File myObj = new File(filepath);
-            Scanner myReader = new Scanner(myObj);
+            Scanner myReader = new Scanner(myObj, StandardCharsets.UTF_8.name());
             while (myReader.hasNextLine()) {
-                text = myReader.nextLine();
+                text.append(myReader.nextLine()).append("\n");
             }
             myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        return text;
+        return text.toString();
     }
+
 
     public IdsMap attributeFileId(ArrayList<String> files ){
         IdsMap filesIds = new IdsMap();
@@ -43,7 +45,7 @@ public class DocumentManager {
     }
 
     public String[] splitData(String text) {
-        return text.split("(?!')\\W+");
+        return text.split("\\s|[\\.+,:+_;!\\?\\(\\)\\/\"“’]");
     }
 
     public ArrayList<String> processText(String [] splitText) {
@@ -88,9 +90,9 @@ public class DocumentManager {
     }
 
     public void printInvertedIndex(InvertedIndex invertedIndex){
-        System.out.printf("%-10s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
+        System.out.printf("%-20s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
         for (String key : invertedIndex.getInvertedIndex().keySet()) {
-            System.out.printf("%-10s | %-14s | %-30s %n", key, invertedIndex.getInvertedIndex().get(key).size(), invertedIndex.getInvertedIndex().get(key));
+            System.out.printf("%-20s | %-14s | %-30s %n", key, invertedIndex.getInvertedIndex().get(key).size(), invertedIndex.getInvertedIndex().get(key));
         }
     }
 
@@ -122,9 +124,9 @@ public class DocumentManager {
             for (Map.Entry<Integer, String> entry : filesIds.getFilesIds().entrySet()) {
                 print_line.printf("%-10s | %-50s %n", entry.getKey(), entry.getValue());
             }
-            print_line.printf("%n%-15s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
+            print_line.printf("%n%-20s | %-14s | %-30s %n", "TERM", "DOC. FREQUENCY", "POSTING LIST");
             for (String key : invertedIndex.getInvertedIndex().keySet()) {
-                print_line.printf("%-15s | %-14s | %-30s %n", key, invertedIndex.getInvertedIndex().get(key).size(), invertedIndex.getInvertedIndex().get(key));
+                print_line.printf("%-20s | %-14s | %-30s %n", key, invertedIndex.getInvertedIndex().get(key).size(), invertedIndex.getInvertedIndex().get(key));
             }
             myWriter.close();
             System.out.println("\nEscrita no ficheiro concluída.");

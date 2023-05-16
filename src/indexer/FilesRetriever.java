@@ -1,6 +1,7 @@
 package indexer;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class FilesRetriever {
@@ -12,11 +13,10 @@ public class FilesRetriever {
 
         for (File fileEntry : folder.listFiles()) {
             if (!fileEntry.isDirectory()) {
-                if (fileEntry.getName().substring(fileEntry.getName().lastIndexOf(".")).equals(".txt")){
-                    if( path.substring(path.length()-1).equals("/")){
+                if (fileEntry.getName().substring(fileEntry.getName().lastIndexOf(".")).equals(".txt") || fileEntry.getName().substring(fileEntry.getName().lastIndexOf(".")).equals(".xml")) {
+                    if (path.substring(path.length() - 1).equals("/")) {
                         files.add(path + fileEntry.getName());
-                    }
-                    else {
+                    } else {
                         files.add(path + "/" + fileEntry.getName());
                     }
                 }
@@ -32,6 +32,10 @@ public class FilesRetriever {
 
         for ( String file : files ){
             String text = doc.readFile(file);
+
+            // processar tags do xml
+            text = text.replaceAll("<\\/?.*?>", "");
+
             listText.add(text);
         }
 
