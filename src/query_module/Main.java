@@ -1,5 +1,6 @@
 package query_module;
 
+import indexer.IdsMap;
 import indexer.InvertedIndex;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class Main {
         // carregar índice invertido do ficheiro .ser
         Load load = new Load();
         InvertedIndex invertedIndex = load.loadInvertedIndexFromFile();
+        IdsMap idsMap = load.loadIdsMapFromFile();
 
         Search search = new Search();
 
@@ -34,6 +36,7 @@ public class Main {
                     "\n1 - Pesquisa por termo" +
                     "\n2 - Pesquisa AND" +
                     "\n3 - Pesquisa termos" +
+                    "\n4 - Pesquisa por query" +
                     "\n0 - Terminar");
             System.out.println("\nIntroduza uma opção: ");
 
@@ -58,7 +61,7 @@ public class Main {
                     read.nextLine();
                     int count = 0;
                     ArrayList<String> termsInp = new ArrayList<>();
-                    while(count<2) {
+                    while (count < 2) {
                         // pesquisa por termo
                         System.out.println("\nIntroduza um termo:");
                         termsInp.add(read.nextLine().toLowerCase());
@@ -73,7 +76,7 @@ public class Main {
                 case 3:
                     read.nextLine();
                     ArrayList<String> termsListInp = new ArrayList<>();
-                    while(true) {
+                    while (true) {
                         // pesquisa por termo
                         System.out.println("\nIntroduza um termo ou 0 para terminar:");
                         String term1 = read.nextLine().toLowerCase();
@@ -83,7 +86,17 @@ public class Main {
                         termsListInp.add(term1);
                     }
                     search.searchIntersections(termsListInp, invertedIndex);
-                default: break;
+                case 4:
+                    read.nextLine();
+                    String query;
+                    do {
+                        // pesquisa por termo
+                        System.out.println("\nIntroduza uma query ou 0 para terminar:");
+                        query = read.nextLine();
+                        search.processQuery(query, invertedIndex, idsMap);
+                    } while (!query.equals("0"));
+                default:
+                    break;
             }
         }
 

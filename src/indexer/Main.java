@@ -54,11 +54,10 @@ public class Main {
 
         // escrita do índice serializado num ficheiro
         doc.saveIndexToFile(invertedIdx);
+        doc.saveDocMapToFile(filesIds);
 
         //GUInterface.userInterface();
 
-        // criação de um objeto query_module.Search, para implementar os seus métodos
-        Search search = new Search();
 
         Integer opt = 1;
         while (opt != 0) {
@@ -66,7 +65,6 @@ public class Main {
                     "\n1 - Procura por DOC. ID" +
                     "\n2 - Procura por termo" +
                     "\n3 - Escrita no ficheiro" +
-                    "\n4 - Procura por query" +
                     "\n0 - Terminar");
             System.out.println("\nIntroduza uma opção: ");
 
@@ -103,18 +101,6 @@ public class Main {
                 case 3:
                     // escrita do índice invertido global num ficheiro de texto "invertedIndex.txt"
                     doc.dumpData(invertedIdx, filesIds);
-                    break;
-                case 4:
-                    // procura por query
-                    read.nextLine();
-                    while(true) {
-                        System.out.println("\nIntroduza a query de pesquisa:");
-                        String query = read.nextLine();
-                        if (query.equals("0")) {
-                            break;
-                        }
-                        search.processQuery(query, invertedIdx, filesIds);
-                    }
                     break;
                 default: break;
             }

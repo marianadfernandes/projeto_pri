@@ -148,4 +148,17 @@ public class DocumentManager {
             e.printStackTrace();
         }
     }
+
+    public void saveDocMapToFile (IdsMap idsMap) {
+        try {
+            FileOutputStream fos = new FileOutputStream("idsMap_Serialized.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(idsMap);
+            oos.close();
+            fos.close();
+            System.out.println("\nIds Map (Serialized) guardado no ficheiro.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

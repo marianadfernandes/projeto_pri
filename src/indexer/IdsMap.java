@@ -1,8 +1,9 @@
 package indexer;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class IdsMap {
+public class IdsMap implements Serializable {
     Integer docId;
     String docPath;
 

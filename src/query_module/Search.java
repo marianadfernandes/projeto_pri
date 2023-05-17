@@ -8,18 +8,21 @@ import java.util.*;
 public class Search {
 
     public void processQuery(String query, InvertedIndex invertedIndex, IdsMap filesIds) {
-        if (query.contains("NOT")) {
+        if (query.matches("NOT .*")) {
             String term = query.replaceAll("NOT ", "");
             searchNegation(term, invertedIndex, filesIds);
-        } else if (query.contains("AND")) {
+        } else if (query.matches(".* AND (?!NOT).*")) {
             String [] terms = query.split(" AND ");
             //searchIntersections(new ArrayList<>(Arrays.asList(terms)), invertedIndex);
             searchIntersection(terms[0], terms[1], invertedIndex);
-        } else if (query.contains("OR")) {
+        } else if (query.matches(".* OR .*")) {
             String [] terms = query.split(" OR ");
             if (terms.length == 2) {
                 searchUnion(terms[0], terms[1], invertedIndex);
             }
+        } else if (query.matches(".* AND\\s?NOT .*")) {
+            String [] terms = query.split(" AND\s?NOT ");
+            searchANDNOT(terms[0], terms[1], invertedIndex);
         }
 
     }
@@ -165,9 +168,43 @@ public class Search {
             negatedDocs.removeAll(values);
             //System.out.println(negatedDocs);
 
-
         }
         System.out.printf("The negation for \"%s\" is: %s", key, negatedDocs);
         return negatedDocs;
+    }
+
+    public ArrayList<Integer> searchANDNOT(String key, String key1, InvertedIndex invertedIndex){
+        ArrayList<Integer> andNotDocs = new ArrayList<>();
+        if(invertedIndex.getInvertedIndex().containsKey(key)){
+            ArrayList values = invertedIndex.getInvertedIndex().get(key);
+            ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
+//            System.out.println(values);
+//            System.out.println(values1);
+
+            int i = 0;
+            int j = 0;
+            while (values.size() != i && values1.size() != j){
+                if ( values.get(i) == values1.get(j)){
+                    i += 1;
+                    j += 1;
+                }
+                else{
+                    if( (int)values.get(i) < (int)values1.get(j)){
+                        andNotDocs.add((Integer) values.get(i));
+                        i+=1;
+                    }
+                    else{
+                        j+=1;
+                    }
+                }
+            }
+
+            while (i < values.size()) {
+                andNotDocs.add((Integer) values.get(i));
+                i++;
+            }
+        }
+        System.out.printf("The negative intersection between \"%s\" and \"%s\" is: %s", key, key1, andNotDocs);
+        return andNotDocs;
     }
 }
