@@ -207,4 +207,99 @@ public class Search {
         System.out.printf("The negative intersection between \"%s\" and \"%s\" is: %s", key, key1, andNotDocs);
         return andNotDocs;
     }
+
+    //PRIORITY FUNCTIONS----------------------------------------------------------------------------------------------------------------
+    //Prentheses function
+    public ArrayList<String> parentheses (String query) {
+        ArrayList<String> result_posting = new ArrayList<>();
+        Integer pos_initial = null;
+        Integer pos_final = null;
+        char[] query_char = query.toCharArray();
+
+        while(true) {
+            System.out.println("query: "+ query);
+            if (!query.contains("(")){
+                break;
+            }
+            for (int i = 0; i < query.length(); i++) {
+                if (query.charAt(i) == "(".charAt(0)) {
+                    pos_initial = i;
+                } else if (query.charAt(i) == ")".charAt(0)) {
+                    pos_final = i;
+                    break;
+                }
+            }
+            String middle_query = query.substring(pos_initial+1,pos_final);
+            System.out.println("inter result: " + middle_query);
+            logicOperators(middle_query);
+            result_posting.add(middle_query);
+            // ir buscar resultado da operação acima e substituir na query *middle_query*
+            // nao esquecer que resultado pode ser nulo
+            query = query.substring(0,pos_initial) + middle_query + query.substring(pos_final+1);
+
+        }
+        System.out.println("result: "+ result_posting);
+
+
+        return result_posting;
+    }
+
+    //Logic Operators function
+    public ArrayList<Integer> logicOperators (String query) {
+        ArrayList<Integer> result_posting = new ArrayList<>();
+        String logicOpers[] = new String[]{" ANDNOT ", " NOT ", " AND ", " OR "};
+        ArrayList<Integer> index_spaces = new ArrayList<>();
+
+        query = " "+query+" ";
+        int index = query.indexOf(" ");
+        while (index != -1) {
+            index_spaces.add(index);
+            index = query.indexOf(" ", index + 1);
+        }
+        // System.out.println(index_spaces);
+
+        if(query.contains(logicOpers[0])){
+            String oper = logicOpers[0];
+            Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper))-1)+1;
+            Integer pos_final =index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
+            String semi_query = query.substring(pos_initial,pos_final);
+            //usar função ANDNOT
+            System.out.println(semi_query);
+            // result_posting =
+        }
+        else if(!query.contains(logicOpers[0]) && query.contains(logicOpers[1])){
+            String oper = logicOpers[1];
+            Integer pos_initial = query.indexOf(oper)+1;
+            Integer pos_final =index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
+            String semi_query = query.substring(pos_initial,pos_final);
+            //usar função NOT
+            System.out.println(semi_query);
+            // result_posting =
+        }
+        else if(!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && query.contains(logicOpers[2])){
+            String oper = logicOpers[2];
+            Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper))-1)+1;
+            Integer pos_final =index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
+            String semi_query = query.substring(pos_initial,pos_final);
+            //usar função AND
+            System.out.println(semi_query);
+            // result_posting =
+        }
+        else if(!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && !query.contains(logicOpers[2]) && query.contains(logicOpers[3])){
+            String oper = logicOpers[3];
+            Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper))-1)+1;
+            Integer pos_final =index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
+            String semi_query = query.substring(pos_initial,pos_final);
+            //usar função OR
+            System.out.println(semi_query);
+            // result_posting =
+        }
+        else{
+            System.out.println("No logic operator found!");
+            return null;
+        }
+
+        return result_posting;
+    }
+
 }
