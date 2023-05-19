@@ -41,24 +41,24 @@ public class Search {
     }
 
     //-------------------- AND entre 2 termos --------------------
-    public ArrayList<Integer> searchIntersection(String key, String key1, InvertedIndex invertedIndex){
+    public ArrayList<Integer> searchIntersection(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
         ArrayList<Integer> intersectDocs = new ArrayList<>();
-        if(invertedIndex.getInvertedIndex().containsKey(key)){
-            ArrayList values = invertedIndex.getInvertedIndex().get(key);
-            ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
+        //if(invertedIndex.getInvertedIndex().containsKey(key)){
+            //ArrayList values = invertedIndex.getInvertedIndex().get(key);
+            //ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
 //            System.out.println(values);
 //            System.out.println(values1);
 
             int i = 0;
             int j = 0;
-            while (values.size() != i && values1.size() != j){
-                if ( values.get(i) == values1.get(j)){
-                    intersectDocs.add((Integer) values.get(i));
+            while ( postingList1.size() != i && postingList2.size() != j){
+                if ( postingList1.get(i) == postingList2.get(j)){
+                    intersectDocs.add(postingList1.get(i));
                     i+=1;
                     j+=1;
                 }
                 else{
-                    if( (int)values.get(i) < (int)values1.get(j)){
+                    if(postingList1.get(i) < postingList2.get(j)){
                         i+=1;
                     }
                     else{
@@ -66,8 +66,8 @@ public class Search {
                     }
                 }
             }
-        }
-        System.out.printf("The intersection between \"%s\" and \"%s\" is: %s", key, key1, intersectDocs);
+
+        System.out.printf("The intersection between \"%s\" and \"%s\" is: %s", intersectDocs);
         return intersectDocs;
     }
 
@@ -124,83 +124,84 @@ public class Search {
     }
 
     //-------------------- OR entre 2 termos --------------------
-    public ArrayList<Integer> searchUnion(String key, String key1, InvertedIndex invertedIndex){
+    public ArrayList<Integer> searchUnion(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
         ArrayList<Integer> unitedDocs = new ArrayList<>();
-        if(invertedIndex.getInvertedIndex().containsKey(key)){
-            ArrayList values = invertedIndex.getInvertedIndex().get(key);
-            ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
+        //if(invertedIndex.getInvertedIndex().containsKey(key)){
+            //ArrayList values = invertedIndex.getInvertedIndex().get(key);
+            //ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
 //            System.out.println(values);
 //            System.out.println(values1);
 
             int i = 0;
             int j = 0;
-            while (values.size() != i && values1.size() != j){
-                if ( values.get(i) == values1.get(j)){
-                    unitedDocs.add((Integer) values.get(i));
+            while (postingList1.size() != i && postingList2.size() != j){
+                if ( postingList1.get(i) == postingList2.get(j)){
+                    unitedDocs.add((Integer) postingList1.get(i));
                     i += 1;
                     j += 1;
                 }
                 else{
-                    if( (int)values.get(i) < (int)values1.get(j)){
-                        unitedDocs.add((Integer) values.get(i));
+                    if(postingList1.get(i) < postingList2.get(j)){
+                        unitedDocs.add((Integer) postingList1.get(i));
                         i+=1;
                     }
                     else{
-                        unitedDocs.add((Integer) values1.get(j));
+                        unitedDocs.add((Integer) postingList2.get(j));
                         j+=1;
                     }
                 }
             }
 
-            while (i < values.size()) {
-                unitedDocs.add((Integer) values.get(i));
+            while (i < postingList1.size()) {
+                unitedDocs.add(postingList1.get(i));
                 i++;
             }
 
-            while (j < values1.size()) {
-                unitedDocs.add((Integer) values1.get(j));
+            while (j < postingList2.size()) {
+                unitedDocs.add(postingList2.get(j));
                 j++;
             }
-        }
-        System.out.printf("The union between \"%s\" and \"%s\" is: %s", key, key1, unitedDocs);
+
+        System.out.printf("The union between \"%s\" and \"%s\" is: %s",unitedDocs);
         return unitedDocs;
     }
 
     // -------------------- NOT de 1 termo --------------------
-    public Set<Integer> searchNegation(String key, InvertedIndex invertedIndex, IdsMap filesIds){
+    public Set<Integer> searchNegation(ArrayList<Integer> postingList1, IdsMap filesIds){
         Set<Integer> negatedDocs = new HashSet<>(filesIds.getFilesIds().keySet());
         //System.out.println(negatedDocs);
-        if(invertedIndex.getInvertedIndex().containsKey(key)){
-            ArrayList<Integer> values = invertedIndex.getInvertedIndex().get(key);
+        //if(invertedIndex.getInvertedIndex().containsKey(key)){
+            //ArrayList<Integer> values = invertedIndex.getInvertedIndex().get(key);
 //            System.out.println(values);
 
-            negatedDocs.removeAll(values);
+            negatedDocs.removeAll(postingList1);
             //System.out.println(negatedDocs);
 
-        }
-        System.out.printf("The negation for \"%s\" is: %s", key, negatedDocs);
+        System.out.printf("The negation for \"%s\" is: %s", negatedDocs);
         return negatedDocs;
     }
 
     //-------------------- AND NOT entre 2 termos --------------------
-    public ArrayList<Integer> searchANDNOT(String key, String key1, InvertedIndex invertedIndex){
+    public ArrayList<Integer> searchANDNOT(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
+
         ArrayList<Integer> andNotDocs = new ArrayList<>();
-        if(invertedIndex.getInvertedIndex().containsKey(key)){
-            ArrayList values = invertedIndex.getInvertedIndex().get(key);
-            ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
+        //if(invertedIndex.getInvertedIndex().containsKey(key)){
+            //ArrayList values = invertedIndex.getInvertedIndex().get(key);
+            //ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
 //            System.out.println(values);
 //            System.out.println(values1);
 
             int i = 0;
             int j = 0;
-            while (values.size() != i && values1.size() != j){
-                if ( values.get(i) == values1.get(j)){
+            while (postingList1.size() != i && postingList2.size() != j){
+                if ( postingList1.get(i) == postingList2.get(j)){
                     i += 1;
                     j += 1;
                 }
                 else{
-                    if( (int)values.get(i) < (int)values1.get(j)){
-                        andNotDocs.add((Integer) values.get(i));
+                    //if( (int)values.get(i) < (int)values1.get(j)){
+                    if( postingList1.get(i) < postingList2.get(j)){
+                        andNotDocs.add(postingList1.get(i));
                         i+=1;
                     }
                     else{
@@ -209,12 +210,12 @@ public class Search {
                 }
             }
 
-            while (i < values.size()) {
-                andNotDocs.add((Integer) values.get(i));
+            while (i < postingList1.size()) {
+                andNotDocs.add(postingList1.get(i));
                 i++;
             }
-        }
-        System.out.printf("The negative intersection between \"%s\" and \"%s\" is: %s", key, key1, andNotDocs);
+
+        System.out.printf("The negative intersection between \"%s\" and \"%s\" is: %s", andNotDocs);
         return andNotDocs;
     }
 
