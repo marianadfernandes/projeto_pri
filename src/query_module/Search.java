@@ -7,7 +7,11 @@ import java.util.*;
 
 public class Search {
 
-    public void processQuery(String query, InvertedIndex invertedIndex, IdsMap filesIds) {
+    //Processamento da Query: transformação direta de termos nas respetivas postings lists
+    //para depois serem trabalhadas as postings lists nos operadores, independentemente de qual seja o primeiro
+
+
+/*    public void processQuery(String query, InvertedIndex invertedIndex, IdsMap filesIds) {
         if (query.matches("NOT .*")) {
             String term = query.replaceAll("NOT ", "");
             searchNegation(term, invertedIndex, filesIds);
@@ -25,7 +29,7 @@ public class Search {
             searchANDNOT(terms[0], terms[1], invertedIndex);
         }
 
-    }
+    }*/
 
     public void searchTerm(String key, InvertedIndex invertedIndex){
         if (invertedIndex.getInvertedIndex().containsKey(key)){
@@ -35,6 +39,8 @@ public class Search {
             System.out.println("Element not found.");
         }
     }
+
+    //-------------------- AND entre 2 termos --------------------
     public ArrayList<Integer> searchIntersection(String key, String key1, InvertedIndex invertedIndex){
         ArrayList<Integer> intersectDocs = new ArrayList<>();
         if(invertedIndex.getInvertedIndex().containsKey(key)){
@@ -65,6 +71,7 @@ public class Search {
         return intersectDocs;
     }
 
+    //-------------------- AND entre x termos --------------------
     public boolean searchIntersections(ArrayList<String> keys, InvertedIndex invertedIndex) {
         ArrayList<Integer> intersectDocs = new ArrayList<>();
         ArrayList<ArrayList<Integer>> values = new ArrayList<>();
@@ -116,6 +123,7 @@ public class Search {
         return true;
     }
 
+    //-------------------- OR entre 2 termos --------------------
     public ArrayList<Integer> searchUnion(String key, String key1, InvertedIndex invertedIndex){
         ArrayList<Integer> unitedDocs = new ArrayList<>();
         if(invertedIndex.getInvertedIndex().containsKey(key)){
@@ -158,6 +166,7 @@ public class Search {
         return unitedDocs;
     }
 
+    // -------------------- NOT de 1 termo --------------------
     public Set<Integer> searchNegation(String key, InvertedIndex invertedIndex, IdsMap filesIds){
         Set<Integer> negatedDocs = new HashSet<>(filesIds.getFilesIds().keySet());
         //System.out.println(negatedDocs);
@@ -173,6 +182,7 @@ public class Search {
         return negatedDocs;
     }
 
+    //-------------------- AND NOT entre 2 termos --------------------
     public ArrayList<Integer> searchANDNOT(String key, String key1, InvertedIndex invertedIndex){
         ArrayList<Integer> andNotDocs = new ArrayList<>();
         if(invertedIndex.getInvertedIndex().containsKey(key)){
@@ -208,7 +218,10 @@ public class Search {
         return andNotDocs;
     }
 
-    //PRIORITY FUNCTIONS----------------------------------------------------------------------------------------------------------------
+
+
+    //--------------------PRIORITY FUNCTIONS--------------------
+
     //Prentheses function
     public ArrayList<String> parentheses (String query) {
         ArrayList<String> result_posting = new ArrayList<>();
