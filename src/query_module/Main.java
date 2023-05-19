@@ -93,7 +93,7 @@ public class Main {
                         // pesquisa por termo
                         System.out.println("\nIntroduza uma query ou 0 para terminar:");
                         query = read.nextLine();
-                        search.processQuery(query, invertedIndex, idsMap);
+                        //search.processQuery(query, invertedIndex, idsMap);
                     } while (!query.equals("0"));
                 default:
                     break;

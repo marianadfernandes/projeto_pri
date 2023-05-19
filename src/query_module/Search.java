@@ -67,7 +67,7 @@ public class Search {
                 }
             }
 
-        System.out.printf("The intersection between \"%s\" and \"%s\" is: %s", intersectDocs);
+        System.out.printf("The intersection is: %s", intersectDocs);
         return intersectDocs;
     }
 
@@ -224,7 +224,7 @@ public class Search {
     //--------------------PRIORITY FUNCTIONS--------------------
 
     //Prentheses function
-    public ArrayList<Integer> parentheses (String query) {
+    public ArrayList<Integer> parentheses (String query, IdsMap idsMap) {
         ArrayList<Integer> result_posting = new ArrayList<>();
         Integer pos_initial = null;
         Integer pos_final = null;
@@ -246,7 +246,7 @@ public class Search {
             String middle_query = query.substring(pos_initial+1,pos_final);
             System.out.println("inter result: " + middle_query);
 
-            result_posting = logicOperators(middle_query);
+            result_posting = logicOperators(middle_query, idsMap);
             // ir buscar resultado da operação acima e substituir na query *middle_query*
             if (result_posting == null){
                 System.out.println("Result is null!");
@@ -259,12 +259,12 @@ public class Search {
         if(result_posting != null){
             System.out.println("result: "+ result_posting);
         }
-        
+
         return result_posting;
     }
 
     //Logic Operators function
-    public ArrayList<Integer> logicOperators (String query) {
+    public ArrayList<Integer> logicOperators (String query, IdsMap idsMap) {
         ArrayList<Integer> result_posting = new ArrayList<>();
         String logicOpers[] = new String[]{" ANDNOT ", " NOT ", " AND ", " OR "};
         ArrayList<Integer> index_spaces = new ArrayList<>();
@@ -316,7 +316,7 @@ public class Search {
                 int num = Integer.parseInt(number);
                 posting1_list.add(num);
             }
-            //result_posting = searchNegation(posting1_list);
+            result_posting = searchNegation(posting1_list, idsMap);
         }
         else if(!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && query.contains(logicOpers[2])){
             String oper = logicOpers[2];
