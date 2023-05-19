@@ -70,8 +70,7 @@ public class Main {
                             break;
                         }
                     }
-                    search.searchIntersection(termsInp.get(0), termsInp.get(1), invertedIndex);
-
+                    //search.searchIntersection(termsInp.get(0), termsInp.get(1), invertedIndex);
                     break;
                 case 3:
                     read.nextLine();
@@ -95,6 +94,15 @@ public class Main {
                         query = read.nextLine();
                         //search.processQuery(query, invertedIndex, idsMap);
                     } while (!query.equals("0"));
+                case 5:
+                    read.nextLine();
+                    String query1;
+                    do {
+                        // pesquisa por termo
+                        System.out.println("\nIntroduza uma query ou 0 para terminar:");
+                        query1 = read.nextLine();
+                        search.parentheses(query1, idsMap);
+                    } while (!query1.equals("0"));
                 default:
                     break;
             }

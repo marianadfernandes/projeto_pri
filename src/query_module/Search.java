@@ -67,7 +67,7 @@ public class Search {
                 }
             }
 
-        System.out.printf("The intersection is: %s", intersectDocs);
+        System.out.printf("\nThe intersection is: %s", intersectDocs);
         return intersectDocs;
     }
 
@@ -162,13 +162,13 @@ public class Search {
                 j++;
             }
 
-        System.out.printf("The union between \"%s\" and \"%s\" is: %s",unitedDocs);
+        System.out.printf("\nThe union is: %s",unitedDocs);
         return unitedDocs;
     }
 
     // -------------------- NOT de 1 termo --------------------
-    public Set<Integer> searchNegation(ArrayList<Integer> postingList1, IdsMap filesIds){
-        Set<Integer> negatedDocs = new HashSet<>(filesIds.getFilesIds().keySet());
+    public ArrayList<Integer> searchNegation(ArrayList<Integer> postingList1, IdsMap filesIds){
+        ArrayList<Integer> negatedDocs = new ArrayList<>(filesIds.getFilesIds().keySet());
         //System.out.println(negatedDocs);
         //if(invertedIndex.getInvertedIndex().containsKey(key)){
             //ArrayList<Integer> values = invertedIndex.getInvertedIndex().get(key);
@@ -177,7 +177,7 @@ public class Search {
             negatedDocs.removeAll(postingList1);
             //System.out.println(negatedDocs);
 
-        System.out.printf("The negation for \"%s\" is: %s", negatedDocs);
+        System.out.printf("\nThe negation is: %s", negatedDocs);
         return negatedDocs;
     }
 
@@ -215,7 +215,7 @@ public class Search {
                 i++;
             }
 
-        System.out.printf("The negative intersection between \"%s\" and \"%s\" is: %s", andNotDocs);
+        System.out.printf("\nThe negative intersection between \"%s\" and \"%s\" is: %s", andNotDocs);
         return andNotDocs;
     }
 
@@ -224,14 +224,14 @@ public class Search {
     //--------------------PRIORITY FUNCTIONS--------------------
 
     //Prentheses function
-    public ArrayList<Integer> parentheses (String query, IdsMap idsMap) {
-        ArrayList<Integer> result_posting = new ArrayList<>();
+    public String parentheses (String query, IdsMap idsMap) {
+        String result_posting = new String();
         Integer pos_initial = null;
         Integer pos_final = null;
         char[] query_char = query.toCharArray();
 
         while(true) {
-            System.out.println("query: "+ query);
+            System.out.println("\nquery: "+ query);
             if (!query.contains("(")){
                 break;
             }
@@ -244,28 +244,29 @@ public class Search {
                 }
             }
             String middle_query = query.substring(pos_initial+1,pos_final);
-            System.out.println("inter result: " + middle_query);
+            System.out.println("\ninter result: " + middle_query);
 
             result_posting = logicOperators(middle_query, idsMap);
             // ir buscar resultado da operação acima e substituir na query *middle_query*
             if (result_posting == null){
-                System.out.println("Result is null!");
+                System.out.println("\nResult is null!");
                 break;
             }
             // nao esquecer que resultado pode ser nulo
-            query = query.substring(0,pos_initial) + result_posting.toString() + query.substring(pos_final+1);
+            query = query.substring(0,pos_initial) + result_posting + query.substring(pos_final+1);
 
         }
         if(result_posting != null){
-            System.out.println("result: "+ result_posting);
+            System.out.println("\nresult: "+ result_posting);
         }
 
         return result_posting;
     }
 
     //Logic Operators function
-    public ArrayList<Integer> logicOperators (String query, IdsMap idsMap) {
+    public String logicOperators (String query, IdsMap idsMap) {
         ArrayList<Integer> result_posting = new ArrayList<>();
+        String result_string = new String();
         String logicOpers[] = new String[]{" ANDNOT ", " NOT ", " AND ", " OR "};
         ArrayList<Integer> index_spaces = new ArrayList<>();
 
@@ -302,32 +303,44 @@ public class Search {
             //System.out.println(posting2_list);
 
             result_posting = searchANDNOT(posting1_list,posting2_list);
+            result_string = result_posting.toString().replaceAll("\\s+", "");
+
         }
         else if(!query.contains(logicOpers[0]) && query.contains(logicOpers[1])){
             String oper = logicOpers[1];
+            System.out.println("oper: " + oper);
             Integer pos_initial = query.indexOf(oper)+1;
             Integer pos_final =index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
             String semi_query = query.substring(pos_initial,pos_final);
+            System.out.println("semiquery: " + semi_query);
             //usar função NOT
             String posting1 = semi_query.substring(semi_query.indexOf("[")+1, semi_query.indexOf("]"));
+            System.out.println("p1: " + posting1);
             String[] posting1_middle = posting1.split(",");
+            System.out.println("p1: " + posting1_middle);
             ArrayList<Integer> posting1_list = new ArrayList<>();
             for (String number : posting1_middle) {
                 int num = Integer.parseInt(number);
                 posting1_list.add(num);
             }
+            System.out.println("p1: " + posting1_list);
             result_posting = searchNegation(posting1_list, idsMap);
+            result_string = result_posting.toString().replaceAll("\\s+", "");
         }
         else if(!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && query.contains(logicOpers[2])){
             String oper = logicOpers[2];
+            System.out.println("oper: " + oper);
             Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper))-1)+1;
-            Integer pos_final =index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
+            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper)+ oper.length()-1)+1);
             String semi_query = query.substring(pos_initial,pos_final);
             //usar função AND
+            System.out.println("semiquery: " + semi_query);
             String posting1 = semi_query.substring(semi_query.indexOf("[")+1, semi_query.indexOf("]"));
             String posting2 =semi_query.split("AND ")[1].substring(semi_query.split("AND ")[1].indexOf("[")+1,semi_query.split("AND ")[1].indexOf("]"));
+            System.out.println("p1: " + posting1 + " p2: " + posting2);
             String[] posting1_middle = posting1.split(",");
             String[] posting2_middle = posting2.split(",");
+            System.out.println("p1: " + posting1_middle + " p2: " + posting2_middle);
             ArrayList<Integer> posting1_list = new ArrayList<>();
             ArrayList<Integer> posting2_list = new ArrayList<>();
             for (String number : posting1_middle) {
@@ -338,7 +351,10 @@ public class Search {
                 int num = Integer.parseInt(number);
                 posting2_list.add(num);
             }
+            System.out.println("p1: " + posting1_list + " p2: " + posting2_list);
             result_posting = searchIntersection(posting1_list,posting2_list);
+            result_string = result_posting.toString().replaceAll("\\s+", "");
+
         }
         else if(!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && !query.contains(logicOpers[2]) && query.contains(logicOpers[3])){
             String oper = logicOpers[3];
@@ -347,7 +363,8 @@ public class Search {
             String semi_query = query.substring(pos_initial,pos_final);
             //usar função OR
             String posting1 = semi_query.substring(semi_query.indexOf("[")+1, semi_query.indexOf("]"));
-            String posting2 =semi_query.split("OR ")[1].substring(semi_query.split("OR ")[1].indexOf("[")+1,semi_query.split("OR ")[1].indexOf("]"));
+            System.out.println(posting1);
+            String posting2 = semi_query.split("OR ")[1].substring(semi_query.split("OR ")[1].indexOf("[")+1,semi_query.split("OR ")[1].indexOf("]"));
             String[] posting1_middle = posting1.split(",");
             String[] posting2_middle = posting2.split(",");
             ArrayList<Integer> posting1_list = new ArrayList<>();
@@ -361,13 +378,15 @@ public class Search {
                 posting2_list.add(num);
             }
             result_posting = searchUnion(posting1_list,posting2_list);
+            result_string = result_posting.toString().replaceAll("\\s+", "");
+
         }
         else{
-            System.out.println("No logic operator found!");
+            System.out.println("\nNo logic operator found!");
             return null;
         }
 
-        return result_posting;
+        return result_string;
     }
 
 }
