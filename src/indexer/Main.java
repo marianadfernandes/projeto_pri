@@ -1,7 +1,9 @@
 package indexer;
 
 import java.util.*;
-import objects.*;
+import objects.InvertedIndex;
+import objects.DocMap;
+import objects.IdsMap;
 
 public class Main {
 
@@ -51,7 +53,7 @@ public class Main {
         System.out.println("\nÍndice Invertido:");
         invertedIdx = doc.createInvertedIndex(directIdx);
 
-        // escrita do índice serializado num ficheiro
+        // escrita do índice serializado e do mapa de documentos em ficheiros
         doc.saveIndexToFile(invertedIdx);
         doc.saveDocMapToFile(filesIds);
 

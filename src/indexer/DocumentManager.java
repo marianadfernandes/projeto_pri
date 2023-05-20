@@ -2,10 +2,18 @@ package indexer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
-import objects.*;
+
+import objects.InvertedIndex;
+import objects.IdsMap;
+import objects.DocMap;
 
 public class DocumentManager {
+
+    TextProcess textProcess = new TextProcess();
 
     public String readFile(String filepath) {
         StringBuilder text = new StringBuilder();
@@ -45,33 +53,20 @@ public class DocumentManager {
         return filesMap;
     }
 
-    public String[] splitData(String text) {
-        return text.split("\\s|[\\.+,:+_;!\\?\\(\\)\\/\"“’]");
-    }
-
-    public ArrayList<String> processText(String [] splitText) {
-        ArrayList<String> terms = new ArrayList<>();
-        for (String token : splitText) {
-            String term = token.toLowerCase();
-            terms.add(term);
-        }
-        return terms;
-    }
 
     public HashMap<Integer, ArrayList<String>> createDirectIndex(DocMap filesMap) {
         HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
 
         for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             String text = entry.getValue();
-            String [] splitText = splitData(text);
-            ArrayList<String> terms = processText(splitText);
+            String[] splitText = textProcess.splitData(text);
+            ArrayList<String> terms = textProcess.processTokens(splitText);
             directIdx.put(entry.getKey().getKey(), terms);
         }
 
         for (Map.Entry<Integer, ArrayList<String>> entry : directIdx.entrySet()) {
             System.out.println(entry.getKey() + " - " + entry.getValue());
         }
-
         return directIdx;
     }
 
@@ -118,9 +113,19 @@ public class DocumentManager {
     }
 
     public void dumpData(InvertedIndex invertedIndex, IdsMap filesIds) {
+        String folderPath = "output"; // Specify the folder path where you want to store the file
+
         try {
-            FileWriter myWriter = new FileWriter("invertedIndex.txt");
+            // Create the folder if it doesn't exist
+            Path folder = Paths.get(folderPath);
+            if (!Files.exists(folder)) {
+                Files.createDirectories(folder);
+            }
+
+            String filePath = Paths.get(folderPath, "invertedIndex.txt").toString();
+            FileWriter myWriter = new FileWriter(filePath);
             PrintWriter print_line = new PrintWriter(myWriter);
+
             print_line.printf("%-10s | %-50s %n", "DOC. ID", "DOC. PATH");
             for (Map.Entry<Integer, String> entry : filesIds.getFilesIds().entrySet()) {
                 print_line.printf("%-10s | %-50s %n", entry.getKey(), entry.getValue());
@@ -138,26 +143,32 @@ public class DocumentManager {
     }
 
     public void saveIndexToFile (InvertedIndex invertedIndex) {
+        String folderPath = "output"; // Specify the folder path where you want to save the file
+
         try {
-            FileOutputStream fos = new FileOutputStream("invertedIndex_Serialized.ser");
+            String filePath = Paths.get(folderPath, "invertedIndex_Serialized.ser").toString();
+            FileOutputStream fos = new FileOutputStream(filePath);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(invertedIndex);
             oos.close();
             fos.close();
-            System.out.println("\nInverted Index (Serialized) guardado no ficheiro.");
+            System.out.println("\nInverted Index (Serialized) guardado no ficheiro: " + filePath);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void saveDocMapToFile (IdsMap idsMap) {
+        String folderPath = "output"; // Specify the folder path where you want to save the file
+
         try {
-            FileOutputStream fos = new FileOutputStream("idsMap_Serialized.ser");
+            String filePath = Paths.get(folderPath, "idsMap_Serialized.ser").toString();
+            FileOutputStream fos = new FileOutputStream(filePath);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(idsMap);
             oos.close();
             fos.close();
-            System.out.println("\nIds Map (Serialized) guardado no ficheiro.");
+            System.out.println("Ids Map (Serialized) guardado no ficheiro: " + filePath);
         } catch (IOException e) {
             e.printStackTrace();
         }

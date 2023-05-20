@@ -1,43 +1,12 @@
 package query_module;
 
-import objects.*;
+import objects.InvertedIndex;
+import objects.IdsMap;
 
 import java.util.*;
 
 public class Search {
-
-    //Processamento da Query: transformação direta de termos nas respetivas postings lists
-    //para depois serem trabalhadas as postings lists nos operadores, independentemente de qual seja o primeiro
-
-
-/*    public void processQuery(String query, objects.InvertedIndex invertedIndex, objects.IdsMap filesIds) {
-        if (query.matches("NOT .*")) {
-            String term = query.replaceAll("NOT ", "");
-            searchNegation(term, invertedIndex, filesIds);
-        } else if (query.matches(".* AND (?!NOT).*")) {
-            String [] terms = query.split(" AND ");
-            //searchIntersections(new ArrayList<>(Arrays.asList(terms)), invertedIndex);
-            searchIntersection(terms[0], terms[1], invertedIndex);
-        } else if (query.matches(".* OR .*")) {
-            String [] terms = query.split(" OR ");
-            if (terms.length == 2) {
-                searchUnion(terms[0], terms[1], invertedIndex);
-            }
-        } else if (query.matches(".* AND\\s?NOT .*")) {
-            String [] terms = query.split(" AND\s?NOT ");
-            searchANDNOT(terms[0], terms[1], invertedIndex);
-        }
-
-    }*/
-
-    public void searchTerm(String key, InvertedIndex invertedIndex){
-        if (invertedIndex.getInvertedIndex().containsKey(key)){
-            System.out.println(key + ": " + invertedIndex.getInvertedIndex().get(key));
-        }
-        else{
-            System.out.println("Element not found.");
-        }
-    }
+    QueryProcess queryProcess = new QueryProcess();
 
     //-------------------- AND entre 2 termos (pelas posting lists) --------------------
     public ArrayList<Integer> searchIntersection(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
@@ -61,7 +30,7 @@ public class Search {
             }
         }
 
-        System.out.printf("\nThe intersection is: %s", intersectDocs);
+        System.out.printf("AND result - The intersection is: %s\n", intersectDocs);
         return intersectDocs;
     }
 
@@ -100,7 +69,7 @@ public class Search {
             j++;
         }
 
-        System.out.printf("\nThe union is: %s",unitedDocs);
+        System.out.printf("OR result - The union is: %s\n",unitedDocs);
         return unitedDocs;
     }
 
@@ -110,7 +79,7 @@ public class Search {
         ArrayList<Integer> negatedDocs = new ArrayList<>(filesIds.getFilesIds().keySet());
         negatedDocs.removeAll(postingList1);
 
-        System.out.printf("\nThe negation is: %s", negatedDocs);
+        System.out.printf("NOT result - The negation is: %s\n", negatedDocs);
         return negatedDocs;
     }
 
@@ -143,60 +112,127 @@ public class Search {
             i++;
         }
 
-        System.out.printf("\nThe negative intersection is: %s", andNotDocs);
+        System.out.printf("ANDNOT result - The negative intersection is: %s\n", andNotDocs);
         return andNotDocs;
     }
 
 
 
     //--------------------PRIORITY FUNCTIONS--------------------
+    public void querySolver(String query, IdsMap idsMap, InvertedIndex invertedIndex) {
+        query = queryProcess.processQueryTermsInPostLists(query, invertedIndex);
 
-    //Função que resolve a query completa
-    public String querySolver (String query, IdsMap idsMap) {
-        String result_posting = new String();
-        Integer pos_initial = null;
-        Integer pos_final = null;
-        char[] query_char = query.toCharArray();
+        String result_posting = null;
+        Deque<Integer> stack = new ArrayDeque<>();
 
-        if(query.contains("(")) {
-            while (true) {
-                //System.out.println("\nquery: " + query);
-                if (!query.contains("(")) {
-                    break;
-                }
-                for (int i = 0; i < query.length(); i++) {
-                    if (query.charAt(i) == "(".charAt(0)) {
-                        pos_initial = i;
-                    } else if (query.charAt(i) == ")".charAt(0)) {
-                        pos_final = i;
-                        break;
-                    }
-                }
-                String middle_query = query.substring(pos_initial + 1, pos_final);
-                System.out.println("\ninter result:" + middle_query);
+        for (int i = 0; i < query.length(); i++) {
+            char c = query.charAt(i);
 
-                result_posting = logicOperators(middle_query, idsMap);
-                // ir buscar resultado da operação acima e substituir na query *middle_query*
-                if (result_posting == null) {
-                    System.out.println("\nResult is null!");
-                    break;
+            // verifica se a query tem expressões entre parêntesis, guardando essas posições caso existam
+            // nomeadamente os parentesis aberto e fechado correspondentes ao mesmo par
+            if (c == '(') {
+                stack.push(i);
+            } else if (c == ')') {
+                if (!stack.isEmpty()) {
+                    int pos_initial = stack.pop();
+                    // com as posições guardadas define-se uma query intermédia a resolver
+                    String middle_query = query.substring(pos_initial + 1, i);
+                    System.out.println("\nMiddle query to solve: " + middle_query);
+
+                    // a essa query intermédia é aplicada a função dos operadores, com as prioridades lá definidas
+                    result_posting = logicOperators(middle_query, idsMap);
+
+                    // na query original, a parte correspondente à query intermédia resolvida é substituída pela posting list que resulta dessa mesma resolução
+                    query = query.substring(0, pos_initial) + result_posting + query.substring(i + 1);
+                    i = pos_initial + result_posting.length() - 1;
+
+                    System.out.println("\nModified query: " + query);
                 }
-                // nao esquecer que resultado pode ser nulo
-                query = query.substring(0, pos_initial) + result_posting + query.substring(pos_final + 1);
             }
         }
-        else{
-            result_posting = logicOperators(query, idsMap);
+
+        result_posting = logicOperators(query, idsMap);
+
+        if (result_posting != null) {
+            System.out.println("\nFINAL Result: " + result_posting);
         }
-        if(result_posting != null){
-            System.out.println("\nresult:"+ result_posting);
-        }
-        return result_posting;
     }
 
-    //Logic Operators function
+
+    // função que formata uma query intermédia de modo a estar no formato certo para entrar nas funções de lógica
+    public LinkedHashMap<String, ArrayList<Integer>> semiQueryTransformation(String oper, ArrayList<Integer> index_spaces, String query){
+        String semi_query = null;
+
+        //para juntar as duas posting-lists para ser possível retorná-las juntas; é linkedhashmap para respeitar a ordem com que são inseridas chaves
+        LinkedHashMap<String , ArrayList<Integer>> postingListsMap = new LinkedHashMap<>();
+
+
+        // se o operador for NOT, só deve ser tido em conta o conteúdo a seguir (1 termo)
+        if(oper == " NOT "){
+            Integer pos_initial = query.indexOf(oper) + 1;
+            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
+            semi_query = query.substring(pos_initial, pos_final);
+        }
+        // se for qualquer um dos outros, a operação é entre 2 termos portanto é tido em conta o que está antes e depois do mesmo
+        else {
+            Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper)) - 1) + 1;
+            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
+            semi_query = query.substring(pos_initial, pos_final);
+            //System.out.println("semi query:"+semi_query);
+        }
+
+        // se o operador não for NOT, há a conversão de 2 postingLists em String para Array
+        if(oper != " NOT "){
+            String posting1 = semi_query.substring(semi_query.indexOf("[") + 1, semi_query.indexOf("]"));
+
+            // no caso da PL ser vazia, coloca um elemento vazio no mapa de PLs, de modo a ser possível o seu uso nas operações lógicas
+            if (posting1.equals("")) {
+                ArrayList<Integer> emptyPL = new ArrayList<>();
+                postingListsMap.put("posting1", emptyPL);
+            }
+            // caso tenha valores, é feita uma conversão da lista(String) em array list, que é o que entra nas funções lógicas e é inserida essa chave no mapa
+            else {
+                String[] posting1_middle = posting1.split(",");
+                ArrayList<Integer> posting1_list = new ArrayList<>();
+                for (String number : posting1_middle) {
+                    int num = Integer.parseInt(number);
+                    posting1_list.add(num);
+                }
+                postingListsMap.put("posting1", posting1_list);
+            }
+        }
+
+        // se for NOT é convertida apenas uma PL; se não for terá então 2 PLs no mapa
+        String posting2 = semi_query.split(oper.substring(1))[1].substring(semi_query.split(oper.substring(1))[1].indexOf("[") + 1, semi_query.split(oper.substring(1))[1].indexOf("]"));
+
+        // no caso da PL ser vazia, coloca um elemento vazio no mapa de PLs, de modo a ser possível o seu uso nas operações lógicas
+        if (posting2.equals("")) {
+            ArrayList<Integer> emptyPL = new ArrayList<>();
+            postingListsMap.put("posting2", emptyPL);
+        }
+        // caso tenha valores, é feita uma conversão da lista(String) em array list, que é o que entra nas funções lógicas e é inserida essa chave no mapa
+        else {
+            String[] posting2_middle = posting2.split(",");
+            ArrayList<Integer> posting2_list = new ArrayList<>();
+            for (String number : posting2_middle) {
+                int num = Integer.parseInt(number);
+                posting2_list.add(num);
+            }
+            postingListsMap.put("posting2", posting2_list);
+        }
+
+        // um dos elementos no mapa é a semi_query, pois é necessária para a função de resolução da query, para substituir na query original a semi_query pela respetiva PL resultante
+        ArrayList<Integer> flag = new ArrayList<>();
+        postingListsMap.put(semi_query, flag);
+
+        return postingListsMap;
+    }
+
+
+    // função para distinguir operadores, definir prioridades e aplicar a respetiva função lógica
+    // ordem de prioridade: parentesis, ANDNOT, NOT, AND, OR
     public String logicOperators (String query, IdsMap idsMap) {
-        //Variaveis
+        // Variáveis
         LinkedHashMap<String, ArrayList<Integer>> postingListsMap = new LinkedHashMap<>();
         ArrayList<Integer> result_posting = new ArrayList<>();
         String result_string = new String();
@@ -207,23 +243,26 @@ public class Search {
         //Loop para resolver todos os operadores
         while(oper != null) {
 
-            //!!!!!!!!!!!!!!!!!! Função dos espaços - não está a funcionar direito! Coloca espaços de todas as vezes, mesmo quando já tem
-            System.out.println("\nquery11:" + query);
-            if(query.substring(query.length()-1,query.length()) != " "){
-                query = query+" ";
+            //------------- parte de código que verifica se a query tem um espaço no início e no fim, para ficar de acordo com o restante código
+            if (query.charAt(query.length() - 1) != ' ') {
+                query = query + ' ';
             }
-            else if(query.substring(0,1) != " "){
-                query = " "+query;
+            if (query.charAt(0) != ' ') {
+                query = ' ' + query;
             }
-            System.out.println("\nquery1:" + query);
+
+            // eliminação dos espaços entre os doc ids das posting lists, para não serem contabilizados no cálculo dos espaços, necessário ao resto do código
+            query = query.replaceAll(", ", ",");
+            //6System.out.println("\nRemaining query to solve:" + query);
+
             index_spaces.removeAll(index_spaces);
             int index = query.indexOf(" ");
             while (index != -1) {
                 index_spaces.add(index);
                 index = query.indexOf(" ", index + 1);
             }
-            // System.out.println(index_spaces);
-            // System.out.println("\noper:"+oper);
+            //-----------------------------------------------------------------------------------------------------------------------------------------------
+
 
             //OPER = ANDNOT
             if (query.contains(logicOpers[0])) {
@@ -280,53 +319,6 @@ public class Search {
     }
 
 
-    //função que restringe o operador da query e transforma as posting lists de strings para listas
-    //de modo a estarem no tipo certo para entrar nas funções de lógica
-    public LinkedHashMap<String, ArrayList<Integer>> semiQueryTransformation(String oper, ArrayList<Integer> index_spaces, String query){
-        String semi_query = "";
-        LinkedHashMap<String , ArrayList<Integer>> postingListsMap = new LinkedHashMap<>(); //para juntar as duas posting-lists para ser possível retorná-las juntas
-        // é linkedhashmap para respeitar a ordem com que são inseridas chaves
-
-        if(oper == " NOT "){
-            Integer pos_initial = query.indexOf(oper) + 1;
-            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
-            semi_query = query.substring(pos_initial, pos_final);
-        }
-        else {
-            Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper)) - 1) + 1;
-            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
-            semi_query = query.substring(pos_initial, pos_final);
-        }
-
-        if(oper != " NOT "){
-            String posting1 = semi_query.substring(semi_query.indexOf("[") + 1, semi_query.indexOf("]"));
-            //System.out.println(posting1);
-            String[] posting1_middle = posting1.split(",");
-            ArrayList<Integer> posting1_list = new ArrayList<>();
-            for (String number : posting1_middle) {
-                int num = Integer.parseInt(number);
-                posting1_list.add(num);
-            }
-            postingListsMap.put("posting1", posting1_list);
-        }
-        String posting2 = semi_query.split(oper.substring(1))[1].substring(semi_query.split(oper.substring(1))[1].indexOf("[") + 1, semi_query.split(oper.substring(1))[1].indexOf("]"));
-        String[] posting2_middle = posting2.split(",");
-        ArrayList<Integer> posting2_list = new ArrayList<>();
-        ArrayList<Integer> flag = new ArrayList<>();
-        for (String number : posting2_middle) {
-            int num = Integer.parseInt(number);
-            posting2_list.add(num);
-        }
-        postingListsMap.put("posting2", posting2_list);
-
-        postingListsMap.put(semi_query, flag);
-
-        return postingListsMap;
-    }
-
-
-
-
 
 
 
@@ -373,5 +365,60 @@ public class Search {
         }
         System.out.printf("\nThe instersection betwwen %s is: %s",keys,intersectDocs);
         return true;
+    }
+
+
+    //-------------------- Query SOLVER quase original mas que tem erros como:
+    // - não continua a resolver a query quando deixa de ter parentesis
+    // - quando tem dois pares de parentesis tipo (...(...)), eliminava parentesis do fim o que não permitia a resolução completa
+    public void querySolver1(String query, IdsMap idsMap, InvertedIndex invertedIndex) {
+        query = queryProcess.processQueryTermsInPostLists(query, invertedIndex);
+
+        String result_posting = null;
+        Integer pos_initial = null;
+        Integer pos_final = null;
+        char[] query_char = query.toCharArray();
+
+
+        // verifica se a query tem expressões entre parêntesis, guardando essas posições caso existam
+        if (query.contains("(")) {
+            while (true) {
+                if (!query.contains("(")) {
+                    break;
+                }
+                for (int i = 0; i < query.length(); i++) {
+                    if (query.charAt(i) == '(') {
+                        pos_initial = i;
+                    } else if (query.charAt(i) == ')') {
+                        pos_final = i;
+                        break;
+                    }
+                }
+                // com as posições que guardou define uma query intermédia a resolver
+                String middle_query = query.substring(pos_initial + 1, pos_final);
+                System.out.println("Middle query to solve: " + middle_query);
+
+                // a essa query intermédia é aplicada a função dos operadores, com as prioridades lá definidas
+                result_posting = logicOperators(middle_query, idsMap);
+
+                /*if (result_posting == null) {
+                    System.out.println("\nResult is null!");
+                    break;
+                }*/
+
+                // na query original, a parte correspondente à query intermédia resolvida é substituída pela posting list que resulta dessa mesma resolução
+                System.out.println("query original:"+query);
+                query = query.substring(0, pos_initial) + result_posting + query.substring(pos_final + 1);
+                System.out.println("query alterada:"+query);
+            }
+        }
+        // quando a query não tem parêntesis, é aplicada diretamente a função dos operadores
+        else {
+            result_posting = logicOperators(query, idsMap);
+        }
+
+        if (result_posting != null) {
+            System.out.println("\nFINAL Result: " + result_posting);
+        }
     }
 }

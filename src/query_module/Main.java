@@ -1,8 +1,11 @@
 package query_module;
 
-import objects.*;
+import objects.InvertedIndex;
+import objects.IdsMap;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -18,24 +21,17 @@ public class Main {
         IdsMap idsMap = load.loadIdsMapFromFile();
 
         Search search = new Search();
-
-        //System.out.println("inverted: " + invertedIndex.getInvertedIndex());
-
-//        search.searchIntersection("available", "have", invertedIndex);
-//
-//        ArrayList<String> terms = new ArrayList<>();
-//        terms.add("available");
-//        terms.add("have");
-//        terms.add("even");
-//        search.searchIntersections(terms, invertedIndex);
+        QueryProcess processer = new QueryProcess();
 
         Integer opt = 1;
         while (opt != 0) {
-            System.out.println("\n\n--------- MENU ---------" +
+            System.out.println("\n--------- MENU ---------" +
                     "\n1 - Pesquisa por termo" +
-                    "\n2 - Pesquisa AND" +
-                    "\n3 - Pesquisa termos" +
-                    "\n4 - Pesquisa por query" +
+                    "\n2 - Pesquisa ANDNOT entre 2 termos" +
+                    "\n3 - Pesquisa NOT de um termo" +
+                    "\n4 - Pesquisa AND entre 2 termos" +
+                    "\n5 - Pesquisa OR entre 2 termos" +
+                    "\n6 - Pesquisa por query complexa" +
                     "\n0 - Terminar");
             System.out.println("\nIntroduza uma opção: ");
 
@@ -48,64 +44,87 @@ public class Main {
             switch (opt) {
                 case 1:
                     read.nextLine();
-                    // pesquisa por Doc ID
-                    System.out.println("\nIntroduza o termo:");
-                    String term = read.nextLine().toLowerCase();
-                    if (term.equals("0")) {
-                        break;
+                    while(true) {
+                        // pesquisa por termo (termo: posting list)
+                        System.out.println("\nIntroduza o termo a procurar (0 para voltar):");
+                        String term = read.nextLine();
+                        if (term.equals("0")) {
+                            break;
+                        }
+                        term = processer.normalizeTerm(term);
+                        processer.searchTerm(term, invertedIndex);
                     }
-                    search.searchTerm(term, invertedIndex);
                     break;
                 case 2:
                     read.nextLine();
-                    int count = 0;
-                    ArrayList<String> termsInp = new ArrayList<>();
-                    while (count < 2) {
-                        // pesquisa por termo
-                        System.out.println("\nIntroduza um termo:");
-                        termsInp.add(read.nextLine().toLowerCase());
-                        count++;
-                        if (termsInp.equals("0")) {
+                    while(true) {
+                        // pesquisa por ANDNOT entre 2 termos
+                        System.out.println("\nIntroduza os termos entre um espaço (0 para voltar):");
+                        String terms = read.nextLine();
+                        if (terms.equals("0")) {
                             break;
                         }
+                        String postLists = processer.processQueryTermsInPostLists(terms, invertedIndex);
+                        ArrayList<ArrayList<Integer>> result = processer.processStringPLToArray(postLists);
+                        search.searchANDNOT(result.get(0), result.get(1));
                     }
-                    //search.searchIntersection(termsInp.get(0), termsInp.get(1), invertedIndex);
                     break;
                 case 3:
                     read.nextLine();
-                    ArrayList<String> termsListInp = new ArrayList<>();
-                    while (true) {
-                        // pesquisa por termo
-                        System.out.println("\nIntroduza um termo ou 0 para terminar:");
-                        String term1 = read.nextLine().toLowerCase();
-                        if (term1.equals("0")) {
+                    while(true) {
+                        // pesquisa por NOT de 1 termo
+                        System.out.println("\nIntroduza o termo que pretende negar (0 para voltar):");
+                        String term = read.nextLine();
+                        if (term.equals("0")) {
                             break;
                         }
-                        termsListInp.add(term1);
+                        String postList = processer.processQueryTermsInPostLists(term, invertedIndex);
+                        ArrayList<ArrayList<Integer>> result = processer.processStringPLToArray(postList);
+                        search.searchNegation(result.get(0), idsMap);
                     }
-                    search.searchIntersections(termsListInp, invertedIndex);
+                    break;
                 case 4:
                     read.nextLine();
-                    String query;
-                    do {
-                        // pesquisa por termo
-                        System.out.println("\nIntroduza uma query ou 0 para terminar:");
-                        query = read.nextLine();
-                        //search.processQuery(query, invertedIndex, idsMap);
-                    } while (!query.equals("0"));
+                    while(true) {
+                        // pesquisa por AND entre 2 termos
+                        System.out.println("\nIntroduza os termos entre um espaço (0 para voltar):");
+                        String terms = read.nextLine();
+                        if (terms.equals("0")) {
+                            break;
+                        }
+                        String postLists = processer.processQueryTermsInPostLists(terms, invertedIndex);
+                        ArrayList<ArrayList<Integer>> result = processer.processStringPLToArray(postLists);
+                        search.searchIntersection(result.get(0), result.get(1));
+                    }
+                    break;
                 case 5:
                     read.nextLine();
-                    String query1;
-                    // pesquisa por termo
-                    System.out.println("\nIntroduza uma query ou 0 para terminar:");
-                    query1 = read.nextLine();
-                    search.querySolver(query1, idsMap);
-                default:
+                    while(true) {
+                        // pesquisa por OR entre 2 termos
+                        System.out.println("\nIntroduza os termos entre um espaço (0 para voltar):");
+                        String terms = read.nextLine();
+                        if (terms.equals("0")) {
+                            break;
+                        }
+                        String postLists = processer.processQueryTermsInPostLists(terms, invertedIndex);
+                        ArrayList<ArrayList<Integer>> result = processer.processStringPLToArray(postLists);
+                        search.searchUnion(result.get(0), result.get(1));
+                    }
                     break;
+                case 6:
+                    read.nextLine();
+                    while(true) {
+                        // pesquisa por Query complexa
+                        System.out.println("\nIntroduza uma query (0 para voltar):");
+                        String query = read.nextLine();
+                        if (query.equals("0")) {
+                            break;
+                        }
+                        search.querySolver(query, idsMap, invertedIndex);
+                    }
+                    break;
+                default: break;
             }
         }
-
-
-        //System.out.println(invertedIndex.getInvertedIndex());
     }
 }
