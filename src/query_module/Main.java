@@ -101,7 +101,6 @@ public class Main {
                     System.out.println("\nIntroduza uma query ou 0 para terminar:");
                     query1 = read.nextLine();
                     search.querySolver(query1, idsMap);
-
                 default:
                     break;
             }

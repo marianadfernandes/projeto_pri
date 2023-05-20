@@ -41,180 +41,109 @@ public class Search {
         }
     }
 
-    //-------------------- AND entre 2 termos --------------------
+    //-------------------- AND entre 2 termos (pelas posting lists) --------------------
     public ArrayList<Integer> searchIntersection(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
         ArrayList<Integer> intersectDocs = new ArrayList<>();
-        //if(invertedIndex.getInvertedIndex().containsKey(key)){
-            //ArrayList values = invertedIndex.getInvertedIndex().get(key);
-            //ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
-//            System.out.println(values);
-//            System.out.println(values1);
+        int i = 0;
+        int j = 0;
 
-            int i = 0;
-            int j = 0;
-            while ( postingList1.size() != i && postingList2.size() != j){
-                if ( postingList1.get(i) == postingList2.get(j)){
-                    intersectDocs.add(postingList1.get(i));
+        while ( postingList1.size() != i && postingList2.size() != j){
+            if ( postingList1.get(i) == postingList2.get(j)){
+                intersectDocs.add(postingList1.get(i));
+                i+=1;
+                j+=1;
+            }
+            else{
+                if(postingList1.get(i) < postingList2.get(j)){
                     i+=1;
-                    j+=1;
                 }
                 else{
-                    if(postingList1.get(i) < postingList2.get(j)){
-                        i+=1;
-                    }
-                    else{
-                        j+=1;
-                    }
+                    j+=1;
                 }
             }
+        }
 
         System.out.printf("\nThe intersection is: %s", intersectDocs);
         return intersectDocs;
     }
 
-    //-------------------- AND entre x termos --------------------
-    public boolean searchIntersections(ArrayList<String> keys, InvertedIndex invertedIndex) {
-        ArrayList<Integer> intersectDocs = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> values = new ArrayList<>();
 
-        for (int i = 0; i < keys.size(); i++) {
-            if (invertedIndex.getInvertedIndex().containsKey(keys.get(i))) {
-                values.add(invertedIndex.getInvertedIndex().get(keys.get(i)));
-            }
-            else{
-                System.out.printf("\nThe word \"%s\" dont exist in the docs.%n", keys.get(i));
-                //intersectDocs.add(i);
-                return false;
-            }
-        }
-
-//        for (int i=0; i<intersectDocs.size();i++) {
-//            keys.remove((int)intersectDocs.get(i));
-//        }
-
-        for(int n=0; n<values.size(); n++) {
-            if(n>=1){
-                values.remove(0);
-                values.get(0).clear();
-                values.get(0).addAll(intersectDocs);
-            }
-//            System.out.println("\n"+n);
-//            System.out.println("intersectDocs: "+intersectDocs);
-//            System.out.println("values: "+values);
-            intersectDocs.clear();
-//            System.out.println("intersectDocs: "+intersectDocs);
-//            System.out.println("values1: "+values);
-            int i = 0;
-            int j = 0;
-            while (values.get(0).size() != i && values.get(1).size() != j) {
-                if (Objects.equals(values.get(0).get(i), values.get(1).get(j))) {
-                    intersectDocs.add((Integer) values.get(0).get(i));
-                    i += 1;
-                    j += 1;
-                } else {
-                    if ((int) values.get(0).get(i) < (int) values.get(1).get(j)) {
-                        i += 1;
-                    } else {
-                        j += 1;
-                    }
-                }
-            }
-        }
-        System.out.printf("\nThe instersection betwwen %s is: %s",keys,intersectDocs);
-        return true;
-    }
-
-    //-------------------- OR entre 2 termos --------------------
+    //-------------------- OR entre 2 termos (pelas posting lists)--------------------
     public ArrayList<Integer> searchUnion(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
         ArrayList<Integer> unitedDocs = new ArrayList<>();
-        //if(invertedIndex.getInvertedIndex().containsKey(key)){
-            //ArrayList values = invertedIndex.getInvertedIndex().get(key);
-            //ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
-//            System.out.println(values);
-//            System.out.println(values1);
+        int i = 0;
+        int j = 0;
 
-            int i = 0;
-            int j = 0;
-            while (postingList1.size() != i && postingList2.size() != j){
-                if ( postingList1.get(i) == postingList2.get(j)){
+        while (postingList1.size() != i && postingList2.size() != j){
+            if ( postingList1.get(i) == postingList2.get(j)){
+                unitedDocs.add((Integer) postingList1.get(i));
+                i += 1;
+                j += 1;
+            }
+            else{
+                if(postingList1.get(i) < postingList2.get(j)){
                     unitedDocs.add((Integer) postingList1.get(i));
-                    i += 1;
-                    j += 1;
+                    i+=1;
                 }
                 else{
-                    if(postingList1.get(i) < postingList2.get(j)){
-                        unitedDocs.add((Integer) postingList1.get(i));
-                        i+=1;
-                    }
-                    else{
-                        unitedDocs.add((Integer) postingList2.get(j));
-                        j+=1;
-                    }
+                    unitedDocs.add((Integer) postingList2.get(j));
+                    j+=1;
                 }
             }
+        }
 
-            while (i < postingList1.size()) {
-                unitedDocs.add(postingList1.get(i));
-                i++;
-            }
+        while (i < postingList1.size()) {
+            unitedDocs.add(postingList1.get(i));
+            i++;
+        }
 
-            while (j < postingList2.size()) {
-                unitedDocs.add(postingList2.get(j));
-                j++;
-            }
+        while (j < postingList2.size()) {
+            unitedDocs.add(postingList2.get(j));
+            j++;
+        }
 
         System.out.printf("\nThe union is: %s",unitedDocs);
         return unitedDocs;
     }
 
-    // -------------------- NOT de 1 termo --------------------
+
+    // -------------------- NOT de 1 termo (pela posting list)--------------------
     public ArrayList<Integer> searchNegation(ArrayList<Integer> postingList1, IdsMap filesIds){
         ArrayList<Integer> negatedDocs = new ArrayList<>(filesIds.getFilesIds().keySet());
-        //System.out.println(negatedDocs);
-        //if(invertedIndex.getInvertedIndex().containsKey(key)){
-            //ArrayList<Integer> values = invertedIndex.getInvertedIndex().get(key);
-//            System.out.println(values);
-
-            negatedDocs.removeAll(postingList1);
-            //System.out.println(negatedDocs);
+        negatedDocs.removeAll(postingList1);
 
         System.out.printf("\nThe negation is: %s", negatedDocs);
         return negatedDocs;
     }
 
-    //-------------------- AND NOT entre 2 termos --------------------
+
+    //-------------------- AND NOT entre 2 termos (pelas posting lists)--------------------
     public ArrayList<Integer> searchANDNOT(ArrayList<Integer> postingList1, ArrayList<Integer> postingList2){
-
         ArrayList<Integer> andNotDocs = new ArrayList<>();
-        //if(invertedIndex.getInvertedIndex().containsKey(key)){
-            //ArrayList values = invertedIndex.getInvertedIndex().get(key);
-            //ArrayList values1 = invertedIndex.getInvertedIndex().get(key1);
-//            System.out.println(values);
-//            System.out.println(values1);
+        int i = 0;
+        int j = 0;
 
-            int i = 0;
-            int j = 0;
-            while (postingList1.size() != i && postingList2.size() != j){
-                if ( postingList1.get(i) == postingList2.get(j)){
-                    i += 1;
-                    j += 1;
+        while (postingList1.size() != i && postingList2.size() != j){
+            if ( postingList1.get(i) == postingList2.get(j)){
+                i += 1;
+                j += 1;
+            }
+            else{
+                //if( (int)values.get(i) < (int)values1.get(j)){
+                if( postingList1.get(i) < postingList2.get(j)){
+                    andNotDocs.add(postingList1.get(i));
+                    i+=1;
                 }
                 else{
-                    //if( (int)values.get(i) < (int)values1.get(j)){
-                    if( postingList1.get(i) < postingList2.get(j)){
-                        andNotDocs.add(postingList1.get(i));
-                        i+=1;
-                    }
-                    else{
-                        j+=1;
-                    }
+                    j+=1;
                 }
             }
+        }
 
-            while (i < postingList1.size()) {
-                andNotDocs.add(postingList1.get(i));
-                i++;
-            }
+        while (i < postingList1.size()) {
+            andNotDocs.add(postingList1.get(i));
+            i++;
+        }
 
         System.out.printf("\nThe negative intersection is: %s", andNotDocs);
         return andNotDocs;
@@ -246,7 +175,7 @@ public class Search {
                     }
                 }
                 String middle_query = query.substring(pos_initial + 1, pos_final);
-                System.out.println("\ninter result: " + middle_query);
+                System.out.println("\ninter result:" + middle_query);
 
                 result_posting = logicOperators(middle_query, idsMap);
                 // ir buscar resultado da operação acima e substituir na query *middle_query*
@@ -256,14 +185,13 @@ public class Search {
                 }
                 // nao esquecer que resultado pode ser nulo
                 query = query.substring(0, pos_initial) + result_posting + query.substring(pos_final + 1);
-
             }
         }
         else{
             result_posting = logicOperators(query, idsMap);
         }
         if(result_posting != null){
-            System.out.println("\nresult: "+ result_posting);
+            System.out.println("\nresult:"+ result_posting);
         }
         return result_posting;
     }
@@ -278,9 +206,10 @@ public class Search {
         ArrayList<Integer> index_spaces = new ArrayList<>();
         String oper = "";
 
-        //Colocar em loop para resolver todos os operadores
+        //Loop para resolver todos os operadores
         while(oper != null) {
-            //Funçao dos espaços
+
+            //!!!!!!!!!!!!!!!!!! Função dos espaços - não está a funcionar direito! Coloca espaços de todas as vezes, mesmo quando já tem
             System.out.println("\nquery11:" + query);
             if(query.substring(query.length()-1,query.length()) != " "){
                 query = query+" ";
@@ -296,7 +225,8 @@ public class Search {
                 index = query.indexOf(" ", index + 1);
             }
             // System.out.println(index_spaces);
-            System.out.println("\noper:"+oper);
+            // System.out.println("\noper:"+oper);
+
             //OPER = ANDNOT
             if (query.contains(logicOpers[0])) {
                 oper = logicOpers[0];
@@ -305,8 +235,8 @@ public class Search {
                 result_posting = searchANDNOT(postingListsMap.get("posting1"), postingListsMap.get("posting2"));
                 result_string = result_posting.toString().replaceAll("\\s+", "");
                 query = query.replace(postingListsMap.keySet().toArray()[2].toString(), result_string);
-
             }
+
             //OPER = NOT
             else if (!query.contains(logicOpers[0]) && query.contains(logicOpers[1])) {
                 oper = logicOpers[1];
@@ -315,8 +245,8 @@ public class Search {
                 result_posting = searchNegation(postingListsMap.get("posting2"), idsMap);
                 result_string = result_posting.toString().replaceAll("\\s+", "");
                 query = query.replace(postingListsMap.keySet().toArray()[1].toString(), result_string);
-
             }
+
             //OPER = AND
             else if (!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && query.contains(logicOpers[2])) {
                 oper = logicOpers[2];
@@ -325,8 +255,8 @@ public class Search {
                 result_posting = searchIntersection(postingListsMap.get("posting1"), postingListsMap.get("posting2"));
                 result_string = result_posting.toString().replaceAll("\\s+", "");
                 query = query.replace(postingListsMap.keySet().toArray()[2].toString(), result_string);
-
             }
+
             //OPER = OR
             else if (!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && !query.contains(logicOpers[2]) && query.contains(logicOpers[3])) {
                 oper = logicOpers[3];
@@ -336,10 +266,13 @@ public class Search {
                 result_string = result_posting.toString().replaceAll("\\s+", "");
                 query = query.replace(postingListsMap.keySet().toArray()[2].toString(), result_string);
             }
-            //Caso a query nao contenha operadores, serve para quebrar o while, deixa de resolver a query
+
+            //Caso a query já não contenha operadores, serve para quebrar o while, pois significa que já se chegou ao resultado final
             else if(!query.contains(logicOpers[0]) && !query.contains(logicOpers[1]) && !query.contains(logicOpers[2]) && !query.contains(logicOpers[3])){
                 oper = null;
-            }else {
+            }
+
+            else {
                 System.out.println("\nNo logic operator found!");
                 return null;
             }
@@ -348,10 +281,13 @@ public class Search {
         return result_string;
     }
 
-    //função que restringe o operador da query e transforma as posting-lists de strings para listas
+
+    //função que restringe o operador da query e transforma as posting lists de strings para listas
+    //de modo a estarem no tipo certo para entrar nas funções de lógica
     public LinkedHashMap<String, ArrayList<Integer>> semiQueryTransformation(String oper, ArrayList<Integer> index_spaces, String query){
-        LinkedHashMap<String , ArrayList<Integer>> postingListsMap = new LinkedHashMap<>(); //para juntar as duas posting-lists e returnar
         String semi_query = "";
+        LinkedHashMap<String , ArrayList<Integer>> postingListsMap = new LinkedHashMap<>(); //para juntar as duas posting-lists para ser possível retorná-las juntas
+        // é linkedhashmap para respeitar a ordem com que são inseridas chaves
 
         if(oper == " NOT "){
             Integer pos_initial = query.indexOf(oper) + 1;
@@ -390,4 +326,54 @@ public class Search {
         return postingListsMap;
     }
 
+
+
+
+
+
+
+    //-------------------- AND entre x termos: NÃO USADA --------------------
+    public boolean searchIntersections(ArrayList<String> keys, InvertedIndex invertedIndex) {
+        ArrayList<Integer> intersectDocs = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> values = new ArrayList<>();
+
+        for (int i = 0; i < keys.size(); i++) {
+            if (invertedIndex.getInvertedIndex().containsKey(keys.get(i))) {
+                values.add(invertedIndex.getInvertedIndex().get(keys.get(i)));
+            }
+            else{
+                System.out.printf("\nThe word \"%s\" dont exist in the docs.%n", keys.get(i));
+                //intersectDocs.add(i);
+                return false;
+            }
+        }
+
+        for(int n=0; n<values.size(); n++) {
+            if(n>=1){
+                values.remove(0);
+                values.get(0).clear();
+                values.get(0).addAll(intersectDocs);
+            }
+
+            intersectDocs.clear();
+
+            int i = 0;
+            int j = 0;
+            while (values.get(0).size() != i && values.get(1).size() != j) {
+                if (Objects.equals(values.get(0).get(i), values.get(1).get(j))) {
+                    intersectDocs.add((Integer) values.get(0).get(i));
+                    i += 1;
+                    j += 1;
+                } else {
+                    if ((int) values.get(0).get(i) < (int) values.get(1).get(j)) {
+                        i += 1;
+                    } else {
+                        j += 1;
+                    }
+                }
+            }
+        }
+        System.out.printf("\nThe instersection betwwen %s is: %s",keys,intersectDocs);
+        return true;
+    }
 }
