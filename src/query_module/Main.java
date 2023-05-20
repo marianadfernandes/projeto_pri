@@ -97,12 +97,11 @@ public class Main {
                 case 5:
                     read.nextLine();
                     String query1;
-                    do {
-                        // pesquisa por termo
-                        System.out.println("\nIntroduza uma query ou 0 para terminar:");
-                        query1 = read.nextLine();
-                        search.parentheses(query1, idsMap);
-                    } while (!query1.equals("0"));
+                    // pesquisa por termo
+                    System.out.println("\nIntroduza uma query ou 0 para terminar:");
+                    query1 = read.nextLine();
+                    search.querySolver(query1, idsMap);
+
                 default:
                     break;
             }
