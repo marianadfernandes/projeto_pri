@@ -3,9 +3,7 @@ package query_module;
 import objects.InvertedIndex;
 import objects.IdsMap;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
