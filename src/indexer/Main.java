@@ -1,8 +1,7 @@
 package indexer;
 
-import query_module.Search;
-
 import java.util.*;
+import objects.*;
 
 public class Main {
 

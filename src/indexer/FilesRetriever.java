@@ -1,7 +1,6 @@
 package indexer;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class FilesRetriever {

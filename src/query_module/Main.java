@@ -1,7 +1,6 @@
 package query_module;
 
-import indexer.IdsMap;
-import indexer.InvertedIndex;
+import objects.*;
 
 import java.util.ArrayList;
 import java.util.Scanner;

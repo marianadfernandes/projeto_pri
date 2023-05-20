@@ -1,9 +1,7 @@
 package query_module;
 
-import indexer.IdsMap;
-import indexer.InvertedIndex;
+import objects.*;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Search {
@@ -12,7 +10,7 @@ public class Search {
     //para depois serem trabalhadas as postings lists nos operadores, independentemente de qual seja o primeiro
 
 
-/*    public void processQuery(String query, InvertedIndex invertedIndex, IdsMap filesIds) {
+/*    public void processQuery(String query, objects.InvertedIndex invertedIndex, objects.IdsMap filesIds) {
         if (query.matches("NOT .*")) {
             String term = query.replaceAll("NOT ", "");
             searchNegation(term, invertedIndex, filesIds);

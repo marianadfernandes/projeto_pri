@@ -1,4 +1,4 @@
-package indexer;
+package objects;
 
 import java.util.HashMap;
 import java.util.Map;

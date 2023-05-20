@@ -1,7 +1,7 @@
 package query_module;
 
-import indexer.IdsMap;
-import indexer.InvertedIndex;
+import objects.*;
+
 import java.io.*;
 
 public class Load {
