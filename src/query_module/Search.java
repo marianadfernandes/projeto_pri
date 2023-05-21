@@ -230,7 +230,7 @@ public class Search {
 
 
     // função para distinguir operadores, definir prioridades e aplicar a respetiva função lógica
-    // ordem de prioridade: parentesis, ANDNOT, NOT, AND, OR
+    // ordem de prioridade dos operadores: ANDNOT, NOT, AND, OR
     public String logicOperators (String query, IdsMap idsMap) {
         // Variáveis
         LinkedHashMap<String, ArrayList<Integer>> postingListsMap = new LinkedHashMap<>();

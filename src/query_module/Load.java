@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 public class Load {
 
     public InvertedIndex loadInvertedIndexFromFile (){
-        String folderPath = "output"; // Specify the folder path where the file is located
+        String folderPath = "output";
 
         try {
             String filePath = Paths.get(folderPath, "invertedIndex_Serialized.ser").toString();
@@ -26,7 +26,7 @@ public class Load {
     }
 
     public IdsMap loadIdsMapFromFile (){
-        String folderPath = "output"; // Specify the folder path where the file is located
+        String folderPath = "output";
 
         try {
             String filePath = Paths.get(folderPath, "idsMap_Serialized.ser").toString();
