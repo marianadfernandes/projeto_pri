@@ -25,11 +25,11 @@ public class Main {
 
         // obtenção do texto contido em cada ficheiro txt encontrado anteriormente
         ArrayList<String> listText = new ArrayList<>();
-        System.out.println("\nTexto contido nos ficheiros:");
+        //System.out.println("\nTexto contido nos ficheiros:");
         listText = FilesRetriever.listTextFromFiles(files);
 
 
-        // criação de um objeto indexer.DocumentManager, para implementar os seus métodos
+        // criação de um objeto DocumentManager, para implementar os seus métodos
         DocumentManager doc = new DocumentManager();
 
         // atribuição de um ID a cada ficheiro .txt encontrado na pasta inicial
@@ -39,7 +39,7 @@ public class Main {
 
         // criação de um mapa que inclui DocID - DocName - Texto corrido
         DocMap filesMap;
-        System.out.println("\nMapa DocID - DocPath - Texto corrido");
+        //System.out.println("\nMapa DocID - DocPath - Texto corrido");
         filesMap = doc.filesIdsAndText(filesIds, listText);
 
 

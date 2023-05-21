@@ -33,14 +33,14 @@ public class FilesRetriever {
             String text = doc.readFile(file);
 
             // processar tags do xml
-            text = text.replaceAll("<\\/?.*?>", "");
+            text = text.replaceAll("<\\/?.*?>", " ");
 
             listText.add(text);
         }
 
-        for (String text : listText) {
+        /*for (String text : listText) {
             System.out.println("Conteúdo: " + text);
-        }
+        }*/
         return listText;
     }
 }

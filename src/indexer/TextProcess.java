@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -37,14 +38,19 @@ public class TextProcess {
         return stopWords;
     }
 
-    // obtenção dos tokens (texto separado por palavras singulares)
+    // obtenção dos tokens (texto separado por palavras singulares, começando por se colocar todo o texto em letra minúscula
+    // e depois eliminando-se a pontuação e números, acabando com a normalização de todas as sequências de espaços num só)
     public String[] splitData(String text) {
-        return text.split("\\s|[\\.+,:+_;!\\?\\(\\)\\/\"“’]");
+        text = text.toLowerCase();
+        text = text.replaceAll("[\\.+,:_;!\\?\\(\\)\\/\"“’\\[\\]{}]", " ");
+        text = text.replaceAll("\\d+", " ");
+        text = text.replaceAll("\\s+", " ");
+        return text.split("\\s");
     }
 
 
     // função para normalizar os tokens em termos
-    // o processamento feito é: remoção de acentos e carateres especiais; colocação em letra minúscula; remoção de stop words portuguesas e inglesas
+    // o processamento feito é: remoção de acentos e carateres especiais; remoção de stop words portuguesas e inglesas
     public ArrayList<String> processTokens(String[] splitText) {
         ArrayList<String> terms = new ArrayList<>();
         ArrayList<String> stopWords = readStopWords("stop_words_files/stop_words_english.txt", "stop_words_files/stop_words_portuguese.txt");
@@ -61,9 +67,10 @@ public class TextProcess {
             Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
             normalizedString = pattern.matcher(normalizedString).replaceAll("");
 
-            //colocar em minúsculas
-            normalizedString = normalizedString.toLowerCase();
-            terms.add(normalizedString);
+            //se o resultado de eliminar carateres especiais ainda for uma string com conteúdo, adiciona à lista de termos
+            if (!Objects.equals(normalizedString, "")) {
+                terms.add(normalizedString);
+            }
         }
 
         //terms = lemmatizeTokens(terms);

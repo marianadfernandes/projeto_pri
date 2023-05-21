@@ -47,9 +47,9 @@ public class DocumentManager {
         for (Map.Entry<Integer,String> entry : filesIds.getFilesIds().entrySet()){
             filesMap.addEntry(entry, listText.get(entry.getKey()-1));
         }
-        for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
+        /*for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             System.out.println(entry.getKey().getKey() + " - " + entry.getKey().getValue() + " - " + entry.getValue());
-        }
+        }*/
         return filesMap;
     }
 
@@ -57,12 +57,14 @@ public class DocumentManager {
     public HashMap<Integer, ArrayList<String>> createDirectIndex(DocMap filesMap) {
         HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
 
+        ArrayList<String> terms = null;
         for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             String text = entry.getValue();
             String[] splitText = textProcess.splitData(text);
-            ArrayList<String> terms = textProcess.processTokens(splitText);
+            terms = textProcess.processTokens(splitText);
             directIdx.put(entry.getKey().getKey(), terms);
         }
+        System.out.println("termos processados: " + terms);
 
         for (Map.Entry<Integer, ArrayList<String>> entry : directIdx.entrySet()) {
             System.out.println(entry.getKey() + " - " + entry.getValue());
