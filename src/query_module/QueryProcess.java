@@ -59,10 +59,10 @@ public class QueryProcess {
                 //se o termo for encontrado no índice
                 if (postingList != null) {
                     //fazer replace na query do termo term pela posting list resultante da aplicação da função anterior
-                    query = query.replace(term, postingList.toString());
+                    query = query.replaceAll("\\b"+term+"\\b", postingList.toString());
                 }
                 else {
-                    query = query.replace(term, "[]");
+                    query = query.replaceAll("\\b"+term+"\\b", "[]");
                 }
             }
         }
@@ -74,17 +74,27 @@ public class QueryProcess {
     public ArrayList<ArrayList<Integer>> processStringPLToArray(String postingLists) {
         // Split the string while preserving the brackets
         String[] parts = postingLists.split("\\s+(?=[\\[])");
+        //System.out.println("partes da string: " + Arrays.toString(parts));
 
         // Parse each part into ArrayLists of integers
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         for (String part : parts) {
+            //System.out.println("parte: " + part);
             String[] elements = part.replaceAll("[\\[\\]]", "").split(",\\s*");
+            //System.out.println(("elementos da string: ") + Arrays.toString(elements));
             ArrayList<Integer> array = new ArrayList<>();
             for (String element : elements) {
-                array.add(Integer.parseInt(element));
+                //System.out.println("elemento: " + element);
+                if (element.equals("")) {
+                    array = new ArrayList<>();
+                }
+                else {
+                    array.add(Integer.parseInt(element));
+                }
             }
             result.add(array);
         }
+        //System.out.println("resultado final: " + result);
         return result;
     }
 }

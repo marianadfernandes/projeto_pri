@@ -253,7 +253,7 @@ public class Search {
 
             // eliminação dos espaços entre os doc ids das posting lists, para não serem contabilizados no cálculo dos espaços, necessário ao resto do código
             query = query.replaceAll(", ", ",");
-            //6System.out.println("\nRemaining query to solve:" + query);
+            //System.out.println("\nRemaining query to solve:" + query);
 
             index_spaces.removeAll(index_spaces);
             int index = query.indexOf(" ");
