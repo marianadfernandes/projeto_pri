@@ -24,7 +24,7 @@ public class Main {
         // obtenção dos ficheiros na pasta escolhida para percorrer
         ArrayList<String> files = new ArrayList<>();
         files = filesRet.listFilesForFolder(path);
-        System.out.println("\nOs ficheiros .txt contidos na pasta com o caminho " + path + " são: \n" + files);
+        System.out.println("\nOs ficheiros .txt e .xml contidos na pasta com o caminho " + path + " são: \n" + files);
 
         // obtenção do texto contido em cada ficheiro txt encontrado anteriormente
         ArrayList<String> listText = new ArrayList<>();

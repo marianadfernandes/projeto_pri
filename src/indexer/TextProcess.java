@@ -64,7 +64,7 @@ public class TextProcess {
                     .replaceAll("\\p{M}", "");
 
             //remover carateres especiais
-            Pattern pattern = Pattern.compile("[^a-zA-Z0-9]");
+            Pattern pattern = Pattern.compile("[^a-zA-Z0-9-]");
             normalizedString = pattern.matcher(normalizedString).replaceAll("");
 
             //se o resultado de eliminar carateres especiais ainda for uma string com conteúdo, adiciona à lista de termos
