@@ -13,7 +13,7 @@ public class Main {
         // objeto scanner para ler da consola
         Scanner read = new Scanner(System.in);
 
-        // carregar índice invertido do ficheiro .ser
+        // carregar índice invertido do ficheiro .ser e também o mapa de ficheiros do ficheiro .ser
         Load load = new Load();
         InvertedIndex invertedIndex = load.loadInvertedIndexFromFile();
         IdsMap idsMap = load.loadIdsMapFromFile();

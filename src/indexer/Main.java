@@ -57,8 +57,6 @@ public class Main {
         doc.saveIndexToFile(invertedIdx);
         doc.saveDocMapToFile(filesIds);
 
-        //GUInterface.userInterface();
-
 
         Integer opt = 1;
         while (opt != 0) {

@@ -74,6 +74,7 @@ public class TextProcess {
         }
 
         //terms = lemmatizeTokens(terms);
+        //System.out.println("Stemmed terms: " + terms);
         return terms;
     }
 

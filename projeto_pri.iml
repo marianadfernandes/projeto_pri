@@ -16,5 +16,15 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/stanford-corenlp-4.5.4-models.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="jar://$MODULE_DIR$/stanford-corenlp-4.5.4-models.jar!/" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>

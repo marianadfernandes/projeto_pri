@@ -12,7 +12,7 @@ public class QueryProcess {
 
     public ArrayList<Integer> searchTerm(String key, InvertedIndex invertedIndex){
         if (invertedIndex.getInvertedIndex().containsKey(key)){
-            System.out.println(key + ": " + invertedIndex.getInvertedIndex().get(key));
+            System.out.println("Token: " + key + " - PL " + invertedIndex.getInvertedIndex().get(key));
             return invertedIndex.getInvertedIndex().get(key);
         }
         else{
