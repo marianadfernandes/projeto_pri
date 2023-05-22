@@ -1,7 +1,6 @@
 package indexer;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,23 +13,6 @@ import objects.DocMap;
 public class DocumentManager {
 
     TextProcess textProcess = new TextProcess();
-
-    public String readFile(String filepath) {
-        StringBuilder text = new StringBuilder();
-        try {
-            File myObj = new File(filepath);
-            Scanner myReader = new Scanner(myObj, StandardCharsets.UTF_8.name());
-            while (myReader.hasNextLine()) {
-                text.append(myReader.nextLine()).append("\n");
-            }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-        return text.toString();
-    }
-
 
     public IdsMap attributeFileId(ArrayList<String> files ){
         IdsMap filesIds = new IdsMap();

@@ -1,11 +1,13 @@
 package indexer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class FilesRetriever {
 
-    public static ArrayList<String> listFilesForFolder(String path) {
+    public ArrayList<String> listFilesForFolder(String path) {
 
         File folder = new File(path);
         ArrayList<String> files = new ArrayList<>();
@@ -24,13 +26,28 @@ public class FilesRetriever {
         return files;
     }
 
-    public static ArrayList<String> listTextFromFiles(ArrayList<String> files){
+    public String readFile(String filepath) {
+        StringBuilder text = new StringBuilder();
+        try {
+            File myObj = new File(filepath);
+            Scanner myReader = new Scanner(myObj, StandardCharsets.UTF_8.name());
+            while (myReader.hasNextLine()) {
+                text.append(myReader.nextLine()).append("\n");
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        return text.toString();
+    }
+
+    public ArrayList<String> listTextFromFiles(ArrayList<String> files){
 
         ArrayList<String> listText = new ArrayList<>();
-        DocumentManager doc = new DocumentManager();
 
         for ( String file : files ){
-            String text = doc.readFile(file);
+            String text = readFile(file);
 
             // processar tags do xml
             text = text.replaceAll("<\\/?.*?>", " ");

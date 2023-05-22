@@ -18,15 +18,18 @@ public class Main {
         String path = read.nextLine();
 
 
+        // criação de um objeto FilesRetriever, para implementar os seus métodos
+        FilesRetriever filesRet = new FilesRetriever();
+
         // obtenção dos ficheiros na pasta escolhida para percorrer
         ArrayList<String> files = new ArrayList<>();
-        files = FilesRetriever.listFilesForFolder(path);
+        files = filesRet.listFilesForFolder(path);
         System.out.println("\nOs ficheiros .txt contidos na pasta com o caminho " + path + " são: \n" + files);
 
         // obtenção do texto contido em cada ficheiro txt encontrado anteriormente
         ArrayList<String> listText = new ArrayList<>();
         //System.out.println("\nTexto contido nos ficheiros:");
-        listText = FilesRetriever.listTextFromFiles(files);
+        listText = filesRet.listTextFromFiles(files);
 
 
         // criação de um objeto DocumentManager, para implementar os seus métodos
