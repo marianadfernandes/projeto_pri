@@ -159,6 +159,7 @@ public class Search {
     }
 
 
+
     // função que formata uma query intermédia de modo a estar no formato certo para entrar nas funções de lógica
     public LinkedHashMap<String, ArrayList<Integer>> semiQueryTransformation(String oper, ArrayList<Integer> index_spaces, String query){
         String semi_query = null;
