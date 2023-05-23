@@ -55,6 +55,7 @@ public class Main {
         InvertedIndex invertedIdx = new InvertedIndex();
         System.out.println("\nÍndice Invertido:");
         invertedIdx = doc.createInvertedIndex(directIdx);
+        System.out.println("\nTamanho do índice invertido: " + invertedIdx.getInvertedIndex().size());
 
         // escrita do índice serializado e do mapa de documentos em ficheiros
         doc.saveIndexToFile(invertedIdx);
