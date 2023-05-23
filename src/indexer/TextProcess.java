@@ -44,6 +44,7 @@ public class TextProcess {
         text = text.toLowerCase();
         text = text.replaceAll("[\\.+,:_;!\\?\\(\\)\\/\"“’\\[\\]{}]", " ");
         text = text.replaceAll("\\d+", " ");
+        text = text.replaceAll("(?!\\b)-+", "");
         text = text.replaceAll("\\s+", " ");
         return text.split("\\s");
     }

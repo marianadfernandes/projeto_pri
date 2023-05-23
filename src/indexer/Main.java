@@ -37,7 +37,7 @@ public class Main {
 
         // atribuição de um ID a cada ficheiro .txt encontrado na pasta inicial
         IdsMap filesIds;
-        System.out.println("\nAtribuição de ID a cada ficheiro da pasta:");
+        //System.out.println("\nAtribuição de ID a cada ficheiro da pasta:");
         filesIds = doc.attributeFileId(files);
 
         // criação de um mapa que inclui DocID - DocName - Texto corrido
@@ -48,7 +48,7 @@ public class Main {
 
         // criação do índice direto de doc id - termos
         HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
-        System.out.println("\nÍndice Direto de DocID - Termos (processados):");
+        //System.out.println("\nÍndice Direto de DocID - Termos (processados):");
         directIdx = doc.createDirectIndex(filesMap);
 
         // criação do índice invertido
