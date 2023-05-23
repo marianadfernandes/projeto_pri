@@ -93,7 +93,7 @@ public class DocumentManager {
         for (Map.Entry<Map.Entry<Integer, String>, String> entry : filesMap.getFilesMap().entrySet()) {
             if (entry.getKey().getKey().equals(docid)) {
                 System.out.println("Caminho para o ficheiro: " + entry.getKey().getValue());
-                System.out.println("Termos do documento " + docid + ": " + directIdx.get(docid));
+                System.out.println("Tokens do documento " + docid + ": " + directIdx.get(docid));
                 return true;
             }
         }

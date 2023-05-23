@@ -14,7 +14,7 @@ public class Main {
 
 
         // caminho para a pasta a percorrer e a guardar informação
-        System.out.println("\nIntroduza o caminho da pasta a analizar:");
+        System.out.println("\nIntroduza o caminho da pasta a analisar:");
         String path = read.nextLine();
 
 

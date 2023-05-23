@@ -59,10 +59,10 @@ public class QueryProcess {
                 //se o termo for encontrado no índice
                 if (postingList != null) {
                     //fazer replace na query do termo term pela posting list resultante da aplicação da função anterior
-                    query = query.replaceAll("\\b"+term+"\\b", postingList.toString());
+                    query = query.replaceAll(term, postingList.toString());
                 }
                 else {
-                    query = query.replaceAll("\\b"+term+"\\b", "[]");
+                    query = query.replaceAll(term, "[]");
                 }
             }
         }
