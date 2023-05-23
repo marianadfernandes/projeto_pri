@@ -3,6 +3,7 @@ package query_module;
 import objects.InvertedIndex;
 import objects.IdsMap;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Search {
@@ -171,63 +172,68 @@ public class Search {
         LinkedHashMap<String , ArrayList<Integer>> postingListsMap = new LinkedHashMap<>();
 
 
-        // se o operador for NOT, só deve ser tido em conta o conteúdo a seguir (1 termo)
-        if(oper == " NOT "){
-            Integer pos_initial = query.indexOf(oper) + 1;
-            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
-            semi_query = query.substring(pos_initial, pos_final);
-        }
-        // se for qualquer um dos outros, a operação é entre 2 termos portanto é tido em conta o que está antes e depois do mesmo
-        else {
-            Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper)) - 1) + 1;
-            Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
-            semi_query = query.substring(pos_initial, pos_final);
-            //System.out.println("semi query:"+semi_query);
-        }
+        try {
+            // se o operador for NOT, só deve ser tido em conta o conteúdo a seguir (1 termo)
+            if (oper == " NOT ") {
+                Integer pos_initial = query.indexOf(oper) + 1;
+                Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
+                semi_query = query.substring(pos_initial, pos_final);
+            }
+            // se for qualquer um dos outros, a operação é entre 2 termos portanto é tido em conta o que está antes e depois do mesmo
+            else {
+                Integer pos_initial = index_spaces.get(index_spaces.indexOf(query.indexOf(oper)) - 1) + 1;
+                Integer pos_final = index_spaces.get(index_spaces.indexOf(query.indexOf(oper) + oper.length() - 1) + 1);
+                semi_query = query.substring(pos_initial, pos_final);
+                //System.out.println("semi query:"+semi_query);
+            }
 
-        // se o operador não for NOT, há a conversão de 2 postingLists em String para Array
-        if(oper != " NOT "){
-            String posting1 = semi_query.substring(semi_query.indexOf("[") + 1, semi_query.indexOf("]"));
+            // se o operador não for NOT, há a conversão de 2 postingLists em String para Array
+            if (oper != " NOT ") {
+                String posting1 = semi_query.substring(semi_query.indexOf("[") + 1, semi_query.indexOf("]"));
+
+                // no caso da PL ser vazia, coloca um elemento vazio no mapa de PLs, de modo a ser possível o seu uso nas operações lógicas
+                if (posting1.equals("")) {
+                    ArrayList<Integer> emptyPL = new ArrayList<>();
+                    postingListsMap.put("posting1", emptyPL);
+                }
+                // caso tenha valores, é feita uma conversão da lista(String) em array list, que é o que entra nas funções lógicas e é inserida essa chave no mapa
+                else {
+                    String[] posting1_middle = posting1.split(",");
+                    ArrayList<Integer> posting1_list = new ArrayList<>();
+                    for (String number : posting1_middle) {
+                        int num = Integer.parseInt(number);
+                        posting1_list.add(num);
+                    }
+                    postingListsMap.put("posting1", posting1_list);
+                }
+            }
+
+            // se for NOT é convertida apenas uma PL; se não for terá então 2 PLs no mapa
+            String posting2 = semi_query.split(oper.substring(1))[1].substring(semi_query.split(oper.substring(1))[1].indexOf("[") + 1, semi_query.split(oper.substring(1))[1].indexOf("]"));
 
             // no caso da PL ser vazia, coloca um elemento vazio no mapa de PLs, de modo a ser possível o seu uso nas operações lógicas
-            if (posting1.equals("")) {
+            if (posting2.equals("")) {
                 ArrayList<Integer> emptyPL = new ArrayList<>();
-                postingListsMap.put("posting1", emptyPL);
+                postingListsMap.put("posting2", emptyPL);
             }
             // caso tenha valores, é feita uma conversão da lista(String) em array list, que é o que entra nas funções lógicas e é inserida essa chave no mapa
             else {
-                String[] posting1_middle = posting1.split(",");
-                ArrayList<Integer> posting1_list = new ArrayList<>();
-                for (String number : posting1_middle) {
+                String[] posting2_middle = posting2.split(",");
+                ArrayList<Integer> posting2_list = new ArrayList<>();
+                for (String number : posting2_middle) {
                     int num = Integer.parseInt(number);
-                    posting1_list.add(num);
+                    posting2_list.add(num);
                 }
-                postingListsMap.put("posting1", posting1_list);
+                postingListsMap.put("posting2", posting2_list);
             }
-        }
 
-        // se for NOT é convertida apenas uma PL; se não for terá então 2 PLs no mapa
-        String posting2 = semi_query.split(oper.substring(1))[1].substring(semi_query.split(oper.substring(1))[1].indexOf("[") + 1, semi_query.split(oper.substring(1))[1].indexOf("]"));
-
-        // no caso da PL ser vazia, coloca um elemento vazio no mapa de PLs, de modo a ser possível o seu uso nas operações lógicas
-        if (posting2.equals("")) {
-            ArrayList<Integer> emptyPL = new ArrayList<>();
-            postingListsMap.put("posting2", emptyPL);
+            // um dos elementos no mapa é a semi_query, pois é necessária para a função de resolução da query, para substituir na query original a semi_query pela respetiva PL resultante
+            ArrayList<Integer> flag = new ArrayList<>();
+            postingListsMap.put(semi_query, flag);
+        } catch (StringIndexOutOfBoundsException e) {
+            System.out.println("\nErro na escrita da query.");
+            //e.printStackTrace();
         }
-        // caso tenha valores, é feita uma conversão da lista(String) em array list, que é o que entra nas funções lógicas e é inserida essa chave no mapa
-        else {
-            String[] posting2_middle = posting2.split(",");
-            ArrayList<Integer> posting2_list = new ArrayList<>();
-            for (String number : posting2_middle) {
-                int num = Integer.parseInt(number);
-                posting2_list.add(num);
-            }
-            postingListsMap.put("posting2", posting2_list);
-        }
-
-        // um dos elementos no mapa é a semi_query, pois é necessária para a função de resolução da query, para substituir na query original a semi_query pela respetiva PL resultante
-        ArrayList<Integer> flag = new ArrayList<>();
-        postingListsMap.put(semi_query, flag);
 
         return postingListsMap;
     }

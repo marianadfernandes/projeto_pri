@@ -118,7 +118,11 @@ public class Main {
                         if (query.equals("0")) {
                             break;
                         }
-                        search.querySolver(query, idsMap, invertedIndex);
+                        try {
+                            search.querySolver(query, idsMap, invertedIndex);
+                        } catch (Exception e) {
+                            continue;
+                        }
                     }
                     break;
                 default: break;
