@@ -124,6 +124,7 @@ public class Search {
 
         String result_posting = null;
         Deque<Integer> stack = new ArrayDeque<>();
+        String logicOpers[] = new String[]{" ANDNOT ", " NOT ", " AND ", " OR "};
 
         for (int i = 0; i < query.length(); i++) {
             char c = query.charAt(i);
@@ -151,9 +152,11 @@ public class Search {
             }
         }
 
-        result_posting = logicOperators(query, idsMap);
+        if (query.contains(logicOpers[0]) || query.contains(logicOpers[1]) || query.contains(logicOpers[2]) || query.contains(logicOpers[3])) {
+            result_posting = logicOperators(query, idsMap);
+        }
 
-        if (result_posting != null) {
+        if (result_posting != null && stack.isEmpty()) {
             System.out.println("\nFINAL Result: " + result_posting);
         }
     }
