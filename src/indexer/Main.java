@@ -48,7 +48,7 @@ public class Main {
 
         // criação do índice direto de doc id - termos
         HashMap<Integer, ArrayList<String>> directIdx = new HashMap<>();
-        //System.out.println("\nÍndice Direto de DocID - Termos (processados):");
+        System.out.println("\nÍndice Direto de DocID - Termos (processados):");
         directIdx = doc.createDirectIndex(filesMap);
 
         // criação do índice invertido

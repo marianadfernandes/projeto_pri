@@ -49,7 +49,20 @@ public class DocumentManager {
         System.out.println("termos processados: " + terms);
 
         for (Map.Entry<Integer, ArrayList<String>> entry : directIdx.entrySet()) {
-            System.out.println(entry.getKey() + " - " + entry.getValue());
+            if (entry.getKey() == 37) {
+                System.out.println(entry.getKey() + " - número de tokens " + entry.getValue().size());
+/*                for (String value : entry.getValue()) {
+                    if (value.equals("a")) {
+                        System.out.println((entry.getValue().get(4127)));
+                        System.out.println((entry.getValue().indexOf("a")));
+                        System.out.println((entry.getValue().get(4129)));
+                    }
+                }*/
+            }
+            else {
+                System.out.println(entry.getKey() + " - " + entry.getValue());
+            }
+
         }
         return directIdx;
     }
