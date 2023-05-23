@@ -121,6 +121,8 @@ public class Main {
                         try {
                             search.querySolver(query, idsMap, invertedIndex);
                         } catch (Exception e) {
+                            System.out.println("\n--Erro na resolução da query! Verifique a escrita da mesma.");
+                            System.out.println("--O formato esperado é que o operador esteja separado dos termos ou de parêntesis por um espaço.");
                             continue;
                         }
                     }
